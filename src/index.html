@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <link rel="stylesheet" href="global.css">
+        
+        
+    </head>
+    <body>
+        
+        <div id="container">
+        <div id="sidebar-left" >
+            <div class="shape-label">
+                <h1 >Create Shape</h1>
+                <button class="button">Line</button>
+                <button class="button">Square</button>
+                <button class="button">Rectangel</button>
+                <button class="button">Polygon</button>
+            </div>
+                <h1>Tools</h1>
+                <button class="button">Save</button>
+                <button class="button">Load</button>
+                <button class="button">Help</button>
+                <div>
+                <input type="color"/>
+
+            </div>
+        </div>
+        <canvas id="canvas" >
+            
+        </canvas>
+        <img src="../ddd.jpg" alt="" srcset="">
+        <div id="sidebar-right">
+            <div>
+                <h1>List of Shape</h1>
+            </div>
+            
+        </div>
+    </div>    
+
+    <script id="vertex-shader-2d" type="notjs">
+        attribute vec4 a_position;
+
+        void main() {
+            gl_Position = a_position;
+        }
+    </script>
+    
+    <script id="fragment-shader-2d" type="notjs">
+        precision mediump float;
+        
+        void main() {
+            gl_FragColor = vec4(1, 0, 0.5, 1);
+            
+        }
+        
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
