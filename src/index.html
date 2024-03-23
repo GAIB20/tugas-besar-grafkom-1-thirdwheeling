@@ -27,11 +27,10 @@
                 <input type="color"/>
 
             </div>
-        </div>
+        </div> 
         <canvas id="canvas" >
             
         </canvas>
-        <img src="../ddd.jpg" alt="" srcset="">
         <div id="sidebar-right">
             <div>
                 <h1>List of Shape</h1>
@@ -40,22 +39,32 @@
         </div>
     </div>    
 
-    <script id="vertex-shader-2d" type="notjs">
-        attribute vec4 a_position;
+    <script  id="vertex-shader-2d" type="notjs">
 
-        void main() {
-            gl_Position = a_position;
-        }
+    // an attribute will receive data from a buffer
+    attribute vec4 a_position;
+
+    // all shaders have a main function
+    void main() {
+
+        // gl_Position is a special variable a vertex shader
+        // is responsible for setting
+        gl_Position = a_position;
+    }
+
     </script>
-    
-    <script id="fragment-shader-2d" type="notjs">
-        precision mediump float;
-        
-        void main() {
-            gl_FragColor = vec4(1, 0, 0.5, 1);
-            
-        }
-        
+    <script  id="fragment-shader-2d" type="notjs">
+
+    // fragment shaders don't have a default precision so we need
+    // to pick one. mediump is a good default
+    precision mediump float;
+
+    void main() {
+        // gl_FragColor is a special variable a fragment shader
+        // is responsible for setting
+        gl_FragColor = vec4(1, 0, 0.5, 1); // return redish-purple
+    }
+
     </script>
     <script src="script.js"></script>
 </body>
