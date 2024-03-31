@@ -1,6 +1,9 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
+// Global variables for program, position buffer, and attribute location
+let program, positionBuffer, positionAttributeLocation;
+
 function createShader(gl, type, source) {
   var shader = gl.createShader(type);
   gl.shaderSource(shader, source);
@@ -28,50 +31,56 @@ function createProgram(gl, vertexShader, fragmentShader) {
   gl.deleteProgram(program);
 }
 
-function createLine(gl, positions){
-    // console.log(x,y)
+function createLine(gl, program, positionAttributeLocation, positionBuffer, positions){
+  // Bind the position buffer.
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    console.log(positions);
-    // var positions = [
-    //     0, 0,
-    //     1, 0.5,
-    // ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-    
-    // code above this line is initialization code.
-    // code below this line is rendering code.
-    
-    
-      // Tell WebGL how to convert from clip space to pixels
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    
-      // Clear the canvas
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-    
-      // Tell it to use our program (pair of shaders)
-      gl.useProgram(program);
-    
-      // Turn on the attribute
-      gl.enableVertexAttribArray(positionAttributeLocation);
-    
-      // Bind the position buffer.
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    
-      // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-      var size = 2;          // 2 components per iteration
-      var type = gl.FLOAT;   // the data is 32bit floats
-      var normalize = false; // don't normalize the data
-      var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-      var offset = 0;        // start at the beginning of the buffer
-      gl.vertexAttribPointer(
-          positionAttributeLocation, size, type, normalize, stride, offset);
-    
-      // draw
-      var primitiveType = gl.LINES;
-      var offset = 0;
-      var count = 1;
-      gl.drawArrays(primitiveType, offset, count);
+  // Use the program
+  gl.useProgram(program);
+
+  // Turn on the attribute
+  gl.enableVertexAttribArray(positionAttributeLocation);
+
+  // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+  var size = 2;          // 2 components per iteration
+  var type = gl.FLOAT;   // the data is 32bit floats
+  var normalize = false; // don't normalize the data
+  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+  var offset = 0;        // start at the beginning of the buffer
+  gl.vertexAttribPointer(
+      positionAttributeLocation, size, type, normalize, stride, offset);
+
+  // Draw
+  var primitiveType = gl.LINES;
+  var count = positions.length / 2; // Number of vertices
+  console.log("Drawing line with "+count+" vertices");
+  console.log(positions);
+  gl.drawArrays(primitiveType, 0, count);
+}
+
+function resizeCanvasToDisplaySize(canvas, scale) {
+  scale = scale || 1;
+  const newWidth = Math.floor(canvas.clientWidth * scale);
+  const newHeight = Math.floor(canvas.clientHeight * scale);
+  if (canvas.width !== newWidth || canvas.height !== newHeight) {
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+    return true;
+  }
+  return false;
+}
+
+var lines = [];
+
+function redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines) {
+  // Clear the canvas
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  // Iterate over the lines array and redraw each line
+  for (var i = 0; i < lines.length; i++) {
+    createLine(gl, program, positionAttributeLocation, positionBuffer, lines[i]);
+  }
 }
 
 function main() {
@@ -79,96 +88,100 @@ function main() {
   var canvas = document.querySelector("#canvas");
   var gl = canvas.getContext("webgl", {antialias: true});
   if (!gl) {
-    console.log("hahahah gak punya web gl")
+    console.log("WebGL not supported, or context creation failed");
     return;
-}
+  }
+  resizeCanvasToDisplaySize(gl.canvas);
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-// Get the strings for our GLSL shaders
-var vertexShaderSource = document.querySelector("#vertex-shader-2d").text;
-var fragmentShaderSource = document.querySelector("#fragment-shader-2d").text;
 
-// create GLSL shaders, upload the GLSL source, compile the shaders
-var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+  // Get the strings for our GLSL shaders
+  var vertexShaderSource = document.querySelector("#vertex-shader-2d").text;
+  var fragmentShaderSource = document.querySelector("#fragment-shader-2d").text;
 
-// Link the two shaders into a program
-var program = createProgram(gl, vertexShader, fragmentShader);
+  // create GLSL shaders, upload the GLSL source, compile the shaders
+  var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+  var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
-// look up where the vertex data needs to go.
-var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  // Link the two shaders into a program
+  program = createProgram(gl, vertexShader, fragmentShader);
 
-// Create a buffer and put three 2d clip space points in it
-var positionBuffer = gl.createBuffer();
+  // look up where the vertex data needs to go.
+  positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 
-// Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  // Create a buffer for positions
+  positionBuffer = gl.createBuffer();
 
-let x;
-let y;
-let click = [];
+  // Clear the canvas
+  gl.clearColor(0, 0, 0, 0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
 
-canvas.addEventListener("click", function(event){
-    let rect = canvas.getBoundingClientRect();
-    x = event.clientX;
-    y = event.clientY;
-
+  // Listen for mouse clicks on the canvas
+  var click = []; // Array to store click coordinates
+  canvas.addEventListener("click", function(event){
+    // let rect = canvas.getBoundingClientRect();
+    let x = event.clientX - canvas.offsetLeft;
+    let y = event.clientY - canvas.offsetTop;
     
-    // console.log("clicked at "+x+","+y);
-    click.push({ x, y });
+    // Convert click coordinates to WebGL clip space
+    x = (x / canvas.width) * 2 - 1;
+    y = (y / canvas.height) * -2 + 1;
 
-    if (click.length === 2) {
-    //   gl.clear(gl.COLOR_BUFFER_BIT);
+    console.log("Clicked at "+x+","+y);
+    console.log("Canvas size: "+canvas.width+","+canvas.height);  
+    // Store click coordinates
+    // click.push({ x, y });
 
+    gl.useProgram(program);
+    var aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
+
+    // Pass the aspect ratio to the vertex shader
+    var aspectRatioLocation = gl.getUniformLocation(program, "u_aspectRatio");
+    gl.uniform1f(aspectRatioLocation, aspectRatio);
+
+    // Draw lines when two points are clicked
+    if (click === null) {
+      click = { x, y };
+    } 
+    // If this is the second click, draw the final line
+    else {
       var positions = [
-        click[0].x/1000, click[0].y/1000,
-        click[1].x/1000, click[1].y/1000,
-        // 0, 0,
-        // 0, 0.5,
+        click.x, click.y,
+        x, y,
       ];
-
-    //   createLine(gl, positions);
-      console.log(positions)
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-    
-    // code above this line is initialization code.
-    // code below this line is rendering code.
-    
-    
-      // Tell WebGL how to convert from clip space to pixels
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    
-      // Clear the canvas
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-    
-      // Tell it to use our program (pair of shaders)
-      gl.useProgram(program);
-    
-      // Turn on the attribute
-      gl.enableVertexAttribArray(positionAttributeLocation);
-    
-      // Bind the position buffer.
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    
-      // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-      var size = 2;          // 2 components per iteration
-      var type = gl.FLOAT;   // the data is 32bit floats
-      var normalize = false; // don't normalize the data
-      var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-      var offset = 0;        // start at the beginning of the buffer
-      gl.vertexAttribPointer(
-          positionAttributeLocation, size, type, normalize, stride, offset);
-    
-      // draw
-      var primitiveType = gl.LINES;
-      var offset = 0;
-      var count = 2;
-      gl.drawArrays(primitiveType, offset, count);
-
-      click = [];
+      lines.push(positions); // Add the line's coordinates to the array
+      redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
+      click = null; // Reset click variable
+      console.log("Line drawn: " + positions);
     }
-})
+  });
 
+  canvas.addEventListener("mousemove", function(event){
+    // If there has been a first click, draw a temporary line
+    if (click !== null) {
+      let rect = canvas.getBoundingClientRect();
+      let x = event.clientX - rect.left;
+      let y = event.clientY - rect.top;
+      
+      // Convert mouse coordinates to WebGL clip space
+      x = (x / canvas.width) * 2 - 1;
+      y = (y / canvas.height) * -2 + 1;
+
+      // Update the last line in the lines array with the new mouse coordinates
+      if (lines.length > 0) {
+        lines[lines.length - 1] = [
+          click.x, click.y,
+          x, y,
+        ];
+      }
+
+      // Clear the canvas
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      // Redraw the existing lines
+      redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
+    }
+  });
 }
 
 main();

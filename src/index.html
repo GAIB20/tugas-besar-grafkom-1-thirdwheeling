@@ -10,7 +10,7 @@
     </head>
     <body>
         
-        <div id="container">
+        <div id="container" class="flex-container">
         <div id="sidebar-left" >
             <div class="shape-label">
                 <h1 >Create Shape</h1>
@@ -39,20 +39,16 @@
         </div>
     </div>    
 
-    <script  id="vertex-shader-2d" type="notjs">
-
-    // an attribute will receive data from a buffer
-    attribute vec4 a_position;
-
-    // all shaders have a main function
-    void main() {
-
-        // gl_Position is a special variable a vertex shader
-        // is responsible for setting
-        gl_Position = a_position;
-    }
-
-    </script>
+    <script id="vertex-shader-2d" type="x-shader/x-vertex">
+        attribute vec2 a_position;
+        
+        uniform float u_aspectRatio;
+        
+        void main() {
+          // Multiply the position by the aspect ratio
+          gl_Position = vec4(a_position.x * u_aspectRatio, a_position.y, 0, 1);
+        }
+        </script>
     <script  id="fragment-shader-2d" type="notjs">
 
     // fragment shaders don't have a default precision so we need
