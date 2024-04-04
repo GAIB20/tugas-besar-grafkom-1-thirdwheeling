@@ -14,10 +14,10 @@
         <div id="sidebar-left" >
             <div class="shape-label">
                 <h1 >Create Shape</h1>
-                <button class="button">Line</button>
-                <button class="button">Square</button>
-                <button class="button">Rectangel</button>
-                <button class="button">Polygon</button>
+                <button class="buttonShape">Line</button>
+                <button class="buttonShape">Square</button>
+                <button class="buttonShape">Rectangle</button>
+                <button class="buttonShape">Polygon</button>
             </div>
                 <h1>Tools</h1>
                 <button class="button">Save</button>
@@ -28,12 +28,36 @@
 
             </div>
         </div> 
-        <canvas id="canvas" >
+        <canvas id="canvas" style="background-color: bisque;">
             
         </canvas>
         <div id="sidebar-right">
             <div>
                 <h1>List of Shape</h1>
+                <select id="shapeList"></select>
+
+            </div>
+            <div id="squareAttribute">
+                <label for="dilatasi">Dilatasi</label><br>
+                <input type="range" min="0" max="10" step="0.1" value="1" id="dilateSquare"><br>
+                <label for="translasi">Translasi X</label><br>
+                <input type="range" min="0" max="10" step="0.1" value="5" id="translateSquareX"><br>
+                <label for="translasi">Translasi Y</label><br>
+                <input type="range" min="0" max="10" step="0.1" value="5" id="translateSquareY"><br>
+                <label for="rotasi">Rotasi</label><br>
+                <input type="range" min="0" max="360" step="1" value="0" id="rotationSquare"><br>
+            </div>
+            <div id="rectangleAttribute">
+                <label for="width">Width</label><br>
+                <input type="range" min="0" max="2" step="0.1" value="1" id="sliderWidthRect"><br>
+                <label for="height">Height</label><br>
+                <input type="range" min="0" max="2" step="0.1" value="1" id="sliderHeightRect"><br>
+                <label for="translasi">Translasi X</label><br>
+                <input type="range" min="0" max="2" step="0.1" value="1" id="translateRectangleX"><br>
+                <label for="translasi">Translasi Y</label><br>
+                <input type="range" min="0" max="2" step="0.1" value="1" id="translateRectangleY"><br>
+                <label for="rotasi">Rotasi</label><br>
+                <input type="range" min="0" max="360" step="1" value="0" id="rotationRectangle"><br>
             </div>
             
         </div>

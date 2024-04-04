@@ -35,7 +35,7 @@ body{
     align-items: center;
 }
 
-.button{
+.buttonShape{
     margin: 10px 5px;
     background: #46007b;
     color: white;
@@ -49,4 +49,13 @@ body{
     display: flex;
     flex-direction:column;
     
+}
+
+#squareAttribute{
+    display: none;
+}
+
+
+#rectangleAttribute{
+    display: none;
 }
