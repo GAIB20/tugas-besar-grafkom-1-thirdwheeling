@@ -493,32 +493,21 @@ function main() {
     updateTranslationY(event, gl);
   });
 
-  dilatationSliderLine.addEventListener("input", function (event) {
-    var scaleFactor = parseFloat(event.target.value);
-    console.log("Scale Factor:", scaleFactor);
-    updateDilatation(event, gl, scaleFactor);
-  });
-  animationLine.addEventListener("click", function (event) {
-    animateLine(gl, positionBuffer, lines, selectedLineIndex, Math.PI / 180, 1000); // Rotate 1 degree per frame over 1000 milliseconds (1 second)
-  });
-  stopAnimationLine.addEventListener("click", function (event) {
-    stopAnimation();
-  });
-
   dilateOneVertexLine.addEventListener("input", function () {
     // Get the select element
     var vertexSelect = document.getElementById("vertexLineList");
 
-    // Get the selected vertex index from the dropdown list
-    var selectedVertexIndex = vertexSelect.value;
+    // Get the selected option
+    var selectedOption = vertexSelect.options[vertexSelect.selectedIndex];
 
-    // Get the line and vertex index from the vertexList
-    var lineIndex = vertexList[selectedVertexIndex].lineIndex;
-    var vertexIndex = vertexList[selectedVertexIndex].vertexIndex;
+    // Split the value to extract line index and vertex index
+    var indices = selectedOption.value.split("_");
+    var lineIndex = parseInt(indices[0]);
+    var vertexIndex = parseInt(indices[1]);
 
-    // Check if the vertex index is valid
-    if (vertexIndex < 1 || vertexIndex > 2) {
-        console.error('Invalid vertex index. Must be between 1 and 2.');
+    // Check if the indices are valid
+    if (isNaN(lineIndex) || isNaN(vertexIndex) || lineIndex < 0 || lineIndex >= lines.length || vertexIndex < 1 || vertexIndex > 2) {
+        console.error('Invalid line or vertex index.');
         return;
     }
 
@@ -534,6 +523,8 @@ function main() {
     // Call the dilation function
     dilateLineFromVertex(gl, positionBuffer, lines, lineIndex, vertexIndex, scaleFactor);
 });
+
+
 
   colorPickerLine.addEventListener("input", function (event) {
     var color = event.target.value;

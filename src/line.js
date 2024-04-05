@@ -187,3 +187,44 @@ function createLine(
     // Redraw all rectangles
     redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines, 1);
   }
+
+  function updateVertexLineList(){
+    var vertexLineList = document.getElementById("vertexLineList");
+    vertexLineList.innerHTML = "";
+    for (var i = 0; i < lines.length; i++) {
+        for (var j = 1; j <= 2; j++) {
+            var vertexLine = document.createElement("option");
+            vertexLine.innerHTML = "Line " + (i + 1) + ", Vertex " + j;
+            vertexLine.value = i + "_" + j; // Set value as lineIndex_vertexIndex
+            vertexLineList.appendChild(vertexLine);
+        }
+    }
+}
+
+
+function dilateLineFromVertex(gl, positionBuffer, lines, index, vertexIndex, scaleFactor) {
+  var line = lines[index];
+  var vertexPositionIndex = (vertexIndex - 1) * 2; // Convert vertex index to position index
+
+  // Get the coordinates of the selected vertex
+  var vertexX = line.positions[vertexPositionIndex];
+  var vertexY = line.positions[vertexPositionIndex + 1];
+
+  // Iterate through each vertex position
+  for (var i = 0; i < line.positions.length; i += 2) {
+      // Calculate the distance from the selected vertex to the current vertex position
+      var deltaX = line.positions[i] - vertexX;
+      var deltaY = line.positions[i + 1] - vertexY;
+
+      // Scale the distances
+      deltaX *= scaleFactor;
+      deltaY *= scaleFactor;
+
+      // Update the vertex position based on the scaled distances and add back the selected vertex position
+      line.positions[i] = deltaX + vertexX;
+      line.positions[i + 1] = deltaY + vertexY;
+  }
+
+  // Redraw the lines
+  redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
+}
