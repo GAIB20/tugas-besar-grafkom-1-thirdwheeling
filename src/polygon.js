@@ -126,8 +126,8 @@ function rotatePolygon(gl, positionBuffer, polygons, index, angle) {
   }
   
   
-  function addVertex(polygon, x, y) {
-    polygon.push([x, y]);
+  function addVertex(polygon, x, y, color) {
+    polygon.push([x, y, color]);
   }
   
   function calculateCentroid(polygon) {
@@ -171,4 +171,15 @@ function rotatePolygon(gl, positionBuffer, polygons, index, angle) {
       cancelAnimationFrame(requestId);
       requestId = null;
     }
+  }
+
+  function changeColorPoly(gl, positionBuffer, polygons, index, newColor) {
+    for (var i = 0; i < polygons.length; i++) {
+      if (i === index) {
+        polygons[i][2] = newColor;
+      }
+    }
+
+    // Redraw all polygons
+    drawPolygon(gl, positionBuffer, polygons);
   }

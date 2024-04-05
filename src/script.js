@@ -318,7 +318,7 @@ function main() {
         console.log("isDrawingPoly", isDrawingPoly);
         if (clickCount < 3) { // Jika belum ada 3 klik, tambahkan titik baru
           console.log("currentPolygon", currentPolygon)
-          addVertex(currentPolygon, x, y);
+          addVertex(currentPolygon, x, y,[1, 1, 1, 1]); 
           console.log(clickCount, currentPolygon);
           lastIndex = allPolygons.length - 1;
           console.log("lastIndex", lastIndex);
@@ -351,7 +351,7 @@ function main() {
           updateShapeList();
         } else { 
           // Jika sudah ada 3 klik, tambahkan sudut pada shape yang sudah ada
-            addVertex(currentPolygon, x, y); // Tambahkan sudut baru
+            addVertex(currentPolygon, x, y, [1,1,1,1]); // Tambahkan sudut baru
             console.log("New angle added at (" + x + ", " + y + ")");
             console.log("Current polygon:", currentPolygon);
             drawPolygon(gl, positionBuffer, [currentPolygon]); // Gambar ulang shape dengan sudut baru
@@ -705,6 +705,7 @@ function main() {
   var sliderScalePoly = document.getElementById("sliderScalePoly");
   var animationPoly = document.getElementById("animationPoly");
   var stopAnimationPoly = document.getElementById("stopAnimationPoly");
+  var colorPickerPoly = document.getElementById("colorPickerPoly");
   sliderYPoly.addEventListener("input", function(event) {
     if(selectedPolygonIndex !== -1) {
       var y = parseFloat(event.target.value);
@@ -754,6 +755,15 @@ function main() {
   });
   stopAnimationPoly.addEventListener("click", function (event) {
     stopAnimation();
+  });
+  colorPickerPoly.addEventListener("input", function (event) {
+    var color = event.target.value;
+    console.log("Color square:", color);
+    console.log(selectedSquareIndex)
+    var colorArray = hexToRgb(color);
+    gl.uniform4f(colorLocation, colorArray.r, colorArray.g, colorArray.b, 1);
+    console.log("ppppp ", allPolygons)
+    changeColorPoly(gl, positionBuffer, allPolygons,0, [colorArray.r, colorArray.g, colorArray.b, 1]);
   });
 
 }
