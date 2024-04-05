@@ -14,6 +14,7 @@ var selectedRectIndex = null
 var selectedSquareIndex = null
 let selectedPolygonIndex = -1;
 let selectedVertexIndex = -1;
+let selectedVertexSquare = -1;
 var lastVertex = { x: 0, y: 0 };
 
 var lastRectX, lastRectY, lastRectWidth, lastRectHeight;
@@ -223,6 +224,7 @@ function main() {
           positionBuffer,
           lines
         );
+        updateVertexLineList();
         click = null; // Reset click variable
         console.log("Line drawn: " + positions);
       }
@@ -300,6 +302,7 @@ function main() {
         squares.push(newSquare);
         lastIndex = squares.length - 1; // Update the index of the last drawn square
         drawSquares(gl, positionBuffer, squares, 0, 0, 0, 0);
+        updateVertexSquareList();
         updateShapeList();
       }
     }else if(selectedShape === "Polygon"){
@@ -406,8 +409,10 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
     drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0);
+    updateVertexSquareList();
     drawPolygon(gl, positionBuffer, allPolygons);
     redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
+    updateVertexLineList();
   });
 
   var listShape = document.getElementById("shapeList");
@@ -472,6 +477,8 @@ function main() {
   var dilatationSliderLine = document.getElementById("dilateLine");
   var animationLine = document.getElementById("animationLine");
   var stopAnimationLine = document.getElementById("stopAnimationLine");
+  var dilateOneVertexLine = document.getElementById("dilateOneVertexLine");
+
   rotationSliderLine.addEventListener("input", function(event) {
     updateRotation(event, gl);
   });
@@ -495,6 +502,37 @@ function main() {
   stopAnimationLine.addEventListener("click", function (event) {
     stopAnimation();
   });
+
+  dilateOneVertexLine.addEventListener("input", function () {
+    // Get the select element
+    var vertexSelect = document.getElementById("vertexLineList");
+
+    // Get the selected vertex index from the dropdown list
+    var selectedVertexIndex = vertexSelect.value;
+
+    // Get the line and vertex index from the vertexList
+    var lineIndex = vertexList[selectedVertexIndex].lineIndex;
+    var vertexIndex = vertexList[selectedVertexIndex].vertexIndex;
+
+    // Check if the vertex index is valid
+    if (vertexIndex < 1 || vertexIndex > 2) {
+        console.error('Invalid vertex index. Must be between 1 and 2.');
+        return;
+    }
+
+    // Get the dilation factor from the slider and convert it to a float
+    var scaleFactor = parseFloat(dilateOneVertexLine.value);
+
+    // If the slider allows only positive values, we need to handle negative values
+    if (scaleFactor < 0) {
+        // Invert the scale factor to ensure shrinking
+        scaleFactor = 1 / Math.abs(scaleFactor);
+    }
+
+    // Call the dilation function
+    dilateLineFromVertex(gl, positionBuffer, lines, lineIndex, vertexIndex, scaleFactor);
+});
+
 
   // PUNYA RECTANGLE
   var heightSliderRect = document.getElementById("sliderHeightRect");
@@ -554,6 +592,7 @@ function main() {
   var dilatationSliderSquare = document.getElementById("dilateSquare");
   var animationSquare = document.getElementById("animationSquare");
   var stopAnimationSquare = document.getElementById("stopAnimationSquare");
+  var dilateOneVertex = document.getElementById("dilateOneVertex");
   xSliderSquare.addEventListener("input", function (event) {
       var x = parseFloat(event.target.value);
       console.log("X:", x);
@@ -574,6 +613,7 @@ function main() {
     var rotationAngle = parseFloat(event.target.value) * Math.PI / 180; // Convert degrees to radians
     console.log("Rotation Angle:", rotationAngle);
     drawSquares(gl, positionBuffer, squares, 0, 0, 0, rotationAngle);
+    updateVertexSquareList();
   });
 
 
@@ -581,6 +621,8 @@ function main() {
       var scaleFactor = parseFloat(event.target.value);
       console.log("Scale Factor:", scaleFactor);
       drawSquares(gl, positionBuffer, squares, scaleFactor, 0, 0, 0);
+      updateVertexSquareList();
+
   });
 
   animationSquare.addEventListener("click", function (event) {
@@ -590,6 +632,38 @@ function main() {
   stopAnimationSquare.addEventListener("click", function (event) {
     stopAnimation();
   });
+
+  dilateOneVertex.addEventListener("input", function () {
+    // Get the select element
+    var vertexSelect = document.getElementById("vertexSquareList");
+  
+    // Get the selected vertex index from the dropdown list
+    var selectedVertexIndex = vertexSelect.value;
+  
+    // Get the square and vertex index from the vertexList
+    var squareIndex = vertexList[selectedVertexIndex].squareIndex;
+    var vertexIndex = vertexList[selectedVertexIndex].vertexIndex;
+  
+    // Check if the vertex index is valid
+    if (vertexIndex < 1 || vertexIndex > 4) {
+      console.error('Invalid vertex index. Must be between 1 and 4.');
+      return;
+    }
+  
+    // Get the dilation factor from the slider and convert it to a float
+    var scaleFactor = parseFloat(dilateOneVertex.value);
+  
+    // If the slider allows only positive values, we need to handle negative values
+    if (scaleFactor < 0) {
+      // Invert the scale factor to ensure shrinking
+      scaleFactor = 1 / Math.abs(scaleFactor);
+    }
+  
+    // Call the dilation function
+    dilateSquareFromVertex(gl, positionBuffer, squares, squareIndex, vertexIndex, scaleFactor);
+  });
+  
+
 
   //SLIDER POLYGON
   var sliderYPoly = document.getElementById("sliderYPoly");
