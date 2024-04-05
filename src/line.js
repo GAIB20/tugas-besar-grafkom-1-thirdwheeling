@@ -149,3 +149,28 @@ function createLine(
     }
     redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
   }
+
+  function animateLine(gl, positionBuffer, lines, program, positionAttributeLocation, scaleFactor) {
+    var start = null;
+    var speed = 0.01;
+    var animate = function (timestamp) {
+      if (!start) start = timestamp;
+      var progress = timestamp - start;
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        line.rotation = progress * speed;
+      }
+      redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines, scaleFactor);
+      window.requestAnimationFrame(animate);
+    };
+    window.requestAnimationFrame(animate);
+  }
+
+  function stopAnimation() {
+    continueAnimation = false;
+    if (requestId) {
+      cancelAnimationFrame(requestId);
+      requestId = null;
+    }
+  }
+  

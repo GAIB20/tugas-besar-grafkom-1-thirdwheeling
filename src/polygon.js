@@ -141,3 +141,34 @@ function rotatePolygon(gl, positionBuffer, polygons, index, angle) {
     return centroid;
   }
   
+
+  function animatePolygon(gl, positionBuffer, polygon, index, rotationAngle){
+    var start = null;
+    var totalRotation = 0;
+
+    function animate(timestamp) {
+        if (!start) start = timestamp;
+        var progress = timestamp - start;
+
+        // Update total rotation based on the progress
+        totalRotation += rotationAngle * progress / 1000; // Convert to seconds
+
+        // Draw squares with updated rotation
+        rotatePolygon(gl, positionBuffer, polygon, index, totalRotation);
+        if (continueAnimation) {
+            requestId = requestAnimationFrame(animate);
+        }
+        else{
+          requestId = null;
+        }
+      }
+      requestId = requestAnimationFrame(animate);
+  }
+
+  function stopAnimation() {
+    continueAnimation = false;
+    if (requestId) {
+      cancelAnimationFrame(requestId);
+      requestId = null;
+    }
+  }

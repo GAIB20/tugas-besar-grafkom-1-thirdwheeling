@@ -470,6 +470,8 @@ function main() {
   var ySliderLine = document.getElementById("translateLineY");
   var rotationSliderLine = document.getElementById("rotationLine");
   var dilatationSliderLine = document.getElementById("dilateLine");
+  var animationLine = document.getElementById("animationLine");
+  var stopAnimationLine = document.getElementById("stopAnimationLine");
   rotationSliderLine.addEventListener("input", function(event) {
     updateRotation(event, gl);
   });
@@ -487,6 +489,12 @@ function main() {
     console.log("Scale Factor:", scaleFactor);
     updateDilatation(event, gl, scaleFactor);
   });
+  animationLine.addEventListener("click", function (event) {
+    animateLine(gl, positionBuffer, lines, selectedLineIndex, Math.PI / 180, 1000); // Rotate 1 degree per frame over 1000 milliseconds (1 second)
+  });
+  stopAnimationLine.addEventListener("click", function (event) {
+    stopAnimation();
+  });
 
   // PUNYA RECTANGLE
   var heightSliderRect = document.getElementById("sliderHeightRect");
@@ -494,7 +502,8 @@ function main() {
   var xSliderRect = document.getElementById("translateRectangleX");
   var ySliderRect = document.getElementById("translateRectangleY");
   var rotationSliderRect = document.getElementById("rotationRectangle");
-  // var colorPickerRect = document.getElementById("colorPicker");
+  var animationRect = document.getElementById("animationRectangle");
+  var stopAnimationRect = document.getElementById("stopAnimationRectangle");
 
   rotationSliderRect.addEventListener("input", function (event) {
       var rotation = event.target.value;
@@ -530,13 +539,21 @@ function main() {
       lastRectY = y;
   });
 
+  animationRect.addEventListener("click", function (event) {
+    animateRectangle(gl, positionBuffer, rectangles, selectedRectIndex, Math.PI / 180, 1000); // Rotate 1 degree per frame over 1000 milliseconds (1 second)
+  });
+
+  stopAnimationRect.addEventListener("click", function (event) {
+    stopAnimation();
+  });
 
   //PUNYA SQUARE
   var xSliderSquare = document.getElementById("translateSquareX");
   var ySliderSquare = document.getElementById("translateSquareY");
   var rotationSliderSquare = document.getElementById("rotationSquare");
   var dilatationSliderSquare = document.getElementById("dilateSquare");
-
+  var animationSquare = document.getElementById("animationSquare");
+  var stopAnimationSquare = document.getElementById("stopAnimationSquare");
   xSliderSquare.addEventListener("input", function (event) {
       var x = parseFloat(event.target.value);
       console.log("X:", x);
@@ -566,12 +583,21 @@ function main() {
       drawSquares(gl, positionBuffer, squares, scaleFactor, 0, 0, 0);
   });
 
+  animationSquare.addEventListener("click", function (event) {
+    animateSquare(gl, positionBuffer, squares, selectedSquareIndex, Math.PI / 180, 1000); // Rotate 1 degree per frame over 1000 milliseconds (1 second)
+  });
+
+  stopAnimationSquare.addEventListener("click", function (event) {
+    stopAnimation();
+  });
+
   //SLIDER POLYGON
   var sliderYPoly = document.getElementById("sliderYPoly");
   var sliderXPoly = document.getElementById("sliderXPoly");
   var sliderRotationPoly = document.getElementById("sliderRotationPoly");
   var sliderScalePoly = document.getElementById("sliderScalePoly");
-
+  var animationPoly = document.getElementById("animationPoly");
+  var stopAnimationPoly = document.getElementById("stopAnimationPoly");
   sliderYPoly.addEventListener("input", function(event) {
     if(selectedPolygonIndex !== -1) {
       var y = parseFloat(event.target.value);
@@ -615,6 +641,12 @@ function main() {
       var scale = parseFloat(event.target.value);
       console.log("Scale:", scale);
       dilatePolygon(gl, positionBuffer, polygons, selectedPolygonIndex, scale);
+  });
+  animationPoly.addEventListener("click", function (event) {
+    animatePolygon(gl, positionBuffer, polygons, selectedPolygonIndex, Math.PI / 180, 1000); // Rotate 1 degree per frame over 1000 milliseconds (1 second)
+  });
+  stopAnimationPoly.addEventListener("click", function (event) {
+    stopAnimation();
   });
 
 }

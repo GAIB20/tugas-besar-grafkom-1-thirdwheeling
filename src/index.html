@@ -48,6 +48,9 @@
                 <input type="range" min="-100" max="100" step="1" value="0" id="translateSquareY"><br>
                 <label for="rotasi">Rotasi</label><br>
                 <input type="range" min="0" max="360" step="1" value="0" id="rotationSquare"><br>
+                <button for="animation" id="animationSquare">Animasi</button>
+                <button for="stopAnimation" id="stopAnimationSquare">Stop</button>
+
             </div>
             <div id="rectangleAttribute">
                 <label for="width">Width</label><br>
@@ -60,6 +63,10 @@
                 <input type="range" min="0" max="2" step="0.1" value="1" id="translateRectangleY"><br>
                 <label for="rotasi">Rotasi</label><br>
                 <input type="range" min="0" max="360" step="1" value="0" id="rotationRectangle"><br>
+                <button for="animation" id="animationRectangle">Animasi</button>
+                <button for="stopAnimation" id="stopAnimationRectangle">Stop</button>
+
+ 
             </div>
             <div id="polygonAttribute">
                 <label for="sliderX">Transalte X:</label><br>
@@ -73,6 +80,8 @@
                 <br>
                 <label for="sliderScale">Scale:</label>
                 <input type="range" min="0" max="2" step="0.1" value="1" id="sliderScalePoly">
+                <button for="animation" id="animationPoly">Animasi</button>
+                <button for="stopAnimation" id="stopAnimationPoly">Stop</button>
             </div>
             <div id="lineAttribute">
                 <label for="dilatasi">Dilatasi</label><br>
@@ -83,6 +92,9 @@
                 <input type="range" min="0" max="10" step="0.1" value="0" id="translateLineY"><br>
                 <label for="rotasi">Rotasi</label><br>
                 <input type="range" min="0" max="360" step="1" value="0" id="rotationLine"><br>
+                <button for="animation" id="animationLine">Animasi</button>
+                <button for="stopAnimation" id="stopAnimationLine">Stop</button>
+
             </div>
         </div>
     </div>    
@@ -104,6 +116,8 @@
 
             // Rotate
             float angle = u_rotation.x;
+
+            
         }
         </script>
     <script  id="fragment-shader-2d" type="notjs">

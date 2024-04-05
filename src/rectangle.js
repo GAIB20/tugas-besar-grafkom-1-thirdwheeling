@@ -117,3 +117,42 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
     drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
   }
   
+  var requestId = null;
+  var continueAnimation = true;
+  
+  function animateRectangle(gl, positionBuffer, rectangles, index, rotationAngle) {
+    var start = null;
+    var totalRotation = 0;
+  
+    function animate(timestamp) {
+      if (!start) start = timestamp;
+      var progress = timestamp - start;
+  
+      // Update total rotation based on the progress
+      totalRotation += rotationAngle * progress / 1000; // Convert to seconds
+  
+      // Draw rectangles with updated rotation
+      rotateRectangle(gl, positionBuffer, rectangles, index, totalRotation);
+  
+      // Continue the animation if the flag is set
+      if (continueAnimation) {
+        requestId = requestAnimationFrame(animate);
+      } else {
+        // Animation stopped
+        requestId = null;
+      }
+    }
+  
+    // Start the animation
+    requestId = requestAnimationFrame(animate);
+  }
+  
+  // To stop the animation
+  function stopAnimation() {
+    continueAnimation = false;
+    if (requestId) {
+      cancelAnimationFrame(requestId);
+      requestId = null;
+    }
+  }
+  
