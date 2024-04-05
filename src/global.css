@@ -7,13 +7,17 @@ body{
 #sidebar-left{
     height: 100vh;
     width: 200px;
-    background: #830b0b;
+    background: #4d7cbf;
+    padding: 10px;
+    border-radius: 0 20px 20px 0;
 
 }
 #sidebar-right{
     height: 100vh;
     width: 200px;
-    background: #c26b6b;
+    background: #4d7cbf;
+    padding: 10px;
+    border-radius: 20px 0 0 20px;
 
 }
 #canvas{
@@ -37,8 +41,8 @@ body{
 
 .buttonShape{
     margin: 10px 5px;
-    background: #46007b;
-    color: white;
+    background: #cfe1f4;
+    color: #031f3b;
     padding: 10px;
     border: none;
     border-radius: 5px;
@@ -52,24 +56,47 @@ body{
 }
 
 .buttonLoad {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    text-align: center;
-    text-decoration: none;
+    margin: 10px 5px;
+    background: #cfe1f4;
+    color: #031f3b;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
   }
 
 .button{
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    text-align: center;
-    text-decoration: none;
+    margin: 10px 5px;
+    background: #cfe1f4;
+    color: #031f3b;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
+
+#saveButton{ margin: 10px 5px;
+    background: #cfe1f4;
+    color: #031f3b;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.buttonShape:hover{
+    background-color: #0056b3;
+    color: white;
+}
+
+#tools{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+}
+
 
 #squareAttribute{
     display: none;
@@ -86,4 +113,113 @@ body{
 
 #lineAttribute{
     display: none;
+}
+
+/* Add this CSS to your global.css file or within a <style> tag in your HTML */
+
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border-radius: 5px;
+}
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+/* Add this CSS to your global.css file or within a <style> tag in your HTML */
+
+#sidebar-right .button {
+    display: block;
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+#sidebar-right .button:hover {
+    background-color: #0056b3;
+}
+
+/* Style the animation and stop buttons */
+
+#sidebar-right button[for="animation"],
+#sidebar-right button[for="stopAnimation"] {
+    margin: 5px;
+    background-color: #cfe1f4; /* Green color */
+    color: #031f3b;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#sidebar-right button[for="animation"]:hover,
+#sidebar-right button[for="stopAnimation"]:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+
+/* Add this CSS to your global.css file or within a <style> tag in your HTML */
+
+/* Style the dropdown menu */
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    font-size: 16px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+/* Style the dropdown options */
+select option {
+    padding: 10px;
+    background-color: #fff;
+    color: #000;
+}
+
+label {
+    color: white; /* Set text color to white */
+    font-size: 18px; /* Set font size to 18px */
+    gap: 5px; /* Add some space between the label and the input */
+    margin-bottom: 5px; /* Add some bottom margin for spacing */
 }
