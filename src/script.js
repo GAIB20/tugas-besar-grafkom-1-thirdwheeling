@@ -8,6 +8,7 @@ var rectangles = [];
 var squares = [];
 var polygons = [];
 var currentPolygon = [];
+var allPolygons = [];
 var selectedLineIndex = null
 var selectedRectIndex = null
 var selectedSquareIndex = null
@@ -83,6 +84,13 @@ function updateShapeList() {
     var option = document.createElement("option");
     option.value = index;
     option.textContent = "Square " + (index + 1); // Change this to display the shape's properties if you want
+    shapeList.appendChild(option);
+  });
+
+  allPolygons.forEach(function(rect, index) {
+    var option = document.createElement("option");
+    option.value = index;
+    option.textContent = "Polygon " + (index + 1); // Change this to display the shape's properties if you want
     shapeList.appendChild(option);
   });
 
@@ -297,48 +305,98 @@ function main() {
       var x = event.clientX - rect.left;
       var y = event.clientY - rect.top;
     
-      if (isDrawingPoly) {
+      var lastIndex = -1;
+      if (!isDrawingPoly) {
+        console.log("isDrawingPoly", isDrawingPoly);
         if (clickCount < 3) { // Jika belum ada 3 klik, tambahkan titik baru
           console.log("currentPolygon", currentPolygon)
           addVertex(currentPolygon, x, y);
           console.log(clickCount, currentPolygon);
-          lastIndex = currentPolygon.length - 1;
+          lastIndex = allPolygons.length - 1;
           console.log("lastIndex", lastIndex);
           drawPolygon(gl, positionBuffer, [currentPolygon]);
           console.log("lastVertex", lastVertex);
           console.log("lastVertexY", lastVertex.y);
+          var isPolygonExsist = false;
+          for (var i = 0; i < allPolygons.length; i++) {
+            var polygon = allPolygons[i];
+            if (polygon === currentPolygon) {
+              console.log("Polygon found at index", i);
+              // Update polygon
+              allPolygons[i] = currentPolygon;
+              isPolygonExsist = true;
+              lastIndex = i;
+              break;
+            }
+            else {
+              console.log("Polygon not found");
+            }
+          }
+          if (!isPolygonExsist) {
+            allPolygons.push(currentPolygon);
+            lastIndex = allPolygons.length - 1;
+            console.log("Polygon added at index", lastIndex);
+          }
+          console.log("allPolygons", allPolygons);
+          lastIndex = currentPolygon.length - 1;
           clickCount++;
+          updateShapeList();
         } else { 
           // Jika sudah ada 3 klik, tambahkan sudut pada shape yang sudah ada
-          addVertex(currentPolygon, x, y); // Tambahkan sudut baru
-              console.log("New angle added at (" + x + ", " + y + ")");
-              console.log("Current polygon:", currentPolygon);
-              drawPolygon(gl, positionBuffer, [currentPolygon]); // Gambar ulang shape dengan sudut baru
+            addVertex(currentPolygon, x, y); // Tambahkan sudut baru
+            console.log("New angle added at (" + x + ", " + y + ")");
+            console.log("Current polygon:", currentPolygon);
+            drawPolygon(gl, positionBuffer, [currentPolygon]); // Gambar ulang shape dengan sudut baru
 
-              // Gambar garis dari sudut terakhir ke titik yang baru ditambahkan
-              gl.useProgram(program);
-              var newVertices = [lastVertex, { x: x, y: y }];
-              var newBuffer = gl.createBuffer();
-              gl.bindBuffer(gl.ARRAY_BUFFER, newBuffer);
-              gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newVertices.flatMap(v => [v.x, v.y])), gl.STATIC_DRAW);
+            // Gambar garis dari sudut terakhir ke titik yang baru ditambahkan
+            gl.useProgram(program);
+            var newVertices = [lastVertex, { x: x, y: y }];
+            var newBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, newBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newVertices.flatMap(v => [v.x, v.y])), gl.STATIC_DRAW);
 
-              var positionLoc = gl.getAttribLocation(program, "a_position");
-              gl.enableVertexAttribArray(positionLoc);
-              gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+            var positionLoc = gl.getAttribLocation(program, "a_position");
+            gl.enableVertexAttribArray(positionLoc);
+            gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
 
-              gl.drawArrays(gl.LINES, 0, newVertices.length);
+            // gl.drawArrays(gl.LINES, 0, newVertices.length);
 
-              // Simpan titik terakhir sebagai titik awal untuk garis berikutnya
-              lastVertex = { x: x, y: y };
-              lastIndex = currentPolygon.length - 1;
-              console.log("lastIndex", lastIndex);
+            // jika polygon yang sedang digambar hanya menambah sudut, maka tidak perlu menambahkan polygon baru
+            
+            var isPolygonExsist = false;
+            for (var i = 0; i < allPolygons.length; i++) {
+              var polygon = allPolygons[i];
+              if (polygon === currentPolygon) {
+                console.log("Polygon found at index", i);
+                // Update polygon
+                allPolygons[i] = currentPolygon;
+                isPolygonExsist = true;
+                lastIndex = i;
+                break;
+              }
+              else {
+                console.log("Polygon not found");
+              }
+            }
+            if (!isPolygonExsist) {
+              allPolygons.push(currentPolygon);
+              lastIndex = allPolygons.length - 1;
+              console.log("Polygon added at index", lastIndex);
+            }
+
+            // lastIndex = allPolygons.length - 1;
+            console.log("allPolygons", allPolygons);
+            console.log("lastIndex", lastIndex);
+            updateShapeList();
+            
+            lastVertex = { x: x, y: y };
+            clickCount++;
         }
       } else {
         isDrawingPoly = true;
+        console.log("isDrawingPoly", isDrawingPoly);
         currentPolygon = [];
-        addVertex(currentPolygon, x, y);
-        clickCount = 1; // Reset jumlah klik
-        lastVertex = { x: x, y: y };
+        clickCount = 0;
       }
     }
     // // redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
@@ -467,9 +525,10 @@ function main() {
   var sliderYPoly = document.getElementById("sliderYPoly");
   var sliderXPoly = document.getElementById("sliderXPoly");
   var sliderRotationPoly = document.getElementById("sliderRotationPoly");
+  var sliderScalePoly = document.getElementById("sliderScalePoly");
 
   sliderYPoly.addEventListener("input", function(event) {
-    if(lastIndex !== -1) {
+    if(selectedPolygonIndex !== -1) {
       var y = parseFloat(event.target.value);
       console.log("y:", y);
   
@@ -477,7 +536,7 @@ function main() {
         var deltaY = y - lastVertex.y;
         console.log("deltaY ",  deltaY);
         console.log("currentPolygons", currentPolygon);
-        translatePolygon(gl, positionBuffer, polygons, lastIndex, 0, deltaY*0.5);
+        translatePolygon(gl, positionBuffer, polygons, selectedPolygonIndex, 0, deltaY*0.5);
         console.log("translatePolygon by deltaY", deltaY*0.5);
         lastVertex.y = y; // Update last vertex Y position
     } else {
@@ -486,14 +545,14 @@ function main() {
   });
 
   sliderXPoly.addEventListener("input", function(event) {
-    if(lastIndex !== -1) {
+    if(selectedPolygonIndex !== -1) {
       var x = parseFloat(event.target.value);
       console.log("x:", x);
   
       console.log("Last vertex X:", lastVertex.x);
         var deltaX = x - lastVertex.x;
         console.log("Translating by ",  deltaX);
-        translatePolygon(gl, positionBuffer, polygons, lastIndex, deltaX*0.5, 0);
+        translatePolygon(gl, positionBuffer, polygons, selectedPolygonIndex, deltaX*0.5, 0);
         console.log("translatePolygon");
         lastVertex.x = x; // Update last vertex X position
     } else {
@@ -503,7 +562,14 @@ function main() {
   sliderRotationPoly.addEventListener("input", function(event) {
       var rotationAngle = parseFloat(event.target.value);
       console.log("Rotation angle:", rotationAngle);
-      rotatePolygon(gl, positionBuffer, polygons, lastIndex, rotationAngle);
+      console.log("Last index:", selectedPolygonIndex);
+      rotatePolygon(gl, positionBuffer, polygons, selectedPolygonIndex, rotationAngle);
+  });
+
+  sliderScalePoly.addEventListener("input", function(event) {
+      var scale = parseFloat(event.target.value);
+      console.log("Scale:", scale);
+      dilatePolygon(gl, positionBuffer, polygons, selectedPolygonIndex, scale);
   });
 
 }
@@ -922,6 +988,27 @@ function translatePolygon(gl, positionBuffer, polygons, index, dx, dy) {
 
   // Redraw the polygon with the updated positions
   redrawPolygons(gl, positionBuffer, [currentPolygon]);
+}
+
+function dilatePolygon(gl, positionBuffer, polygons, index, scale) {
+  if (index !== -1) {
+    // Calculate the centroid of the polygon
+    var centroid = calculateCentroid(currentPolygon);
+
+    // Scale each vertex outward or inward from the centroid
+    var dilatedPolygon = currentPolygon.map(function(vertex) {
+      var x = (vertex[0] - centroid[0]) * scale + centroid[0];
+      var y = (vertex[1] - centroid[1]) * scale + centroid[1];
+      return [x, y];
+    });
+
+    // Update currentPolygon with the dilated polygon vertices
+    currentPolygon = dilatedPolygon;
+
+    console.log("Dilated polygon:", dilatedPolygon);
+
+    drawPolygon(gl, positionBuffer, [dilatedPolygon]);
+  }
 }
 
 
