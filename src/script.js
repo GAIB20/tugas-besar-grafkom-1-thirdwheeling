@@ -400,8 +400,11 @@ function main() {
       }
     }
     // // redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
-    // drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
-    // drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
+    drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0);
+    drawPolygon(gl, positionBuffer, allPolygons);
+    redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
   });
 
   var listShape = document.getElementById("shapeList");
@@ -636,7 +639,7 @@ function redrawLines(
   lines, scaleFactor
 ) {
   // Clear the canvas
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  // gl.clear(gl.COLOR_BUFFER_BIT);
 
   // Iterate over the lines array and redraw each line
   for (var i = 0; i < lines.length; i++) {
@@ -730,7 +733,7 @@ function updateRotation(event, gl) {
 // FUNGSI RECTANGLE
 
 function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, offsetY) {
-  gl.clear(gl.COLOR_BUFFER_BIT); // Clear canvas before drawing
+  // gl.clear(gl.COLOR_BUFFER_BIT); // Clear canvas before drawing
 
   rectangles.forEach(function (rect) {
     // Convert coordinates to WebGL space (-1 to 1)
@@ -848,7 +851,7 @@ function changeHeight(gl, positionBuffer, rectangles, index, newHeight) {
 
 // FUNGSI SQUARE
 function drawSquares(gl, positionBuffer, squares, scaleFactor, offsetX, offsetY, rotation) {
-  gl.clear(gl.COLOR_BUFFER_BIT); // Clear canvas before drawing
+  // gl.clear(gl.COLOR_BUFFER_BIT); // Clear canvas before drawing
 
   squares.forEach(function (square, index) {
       var x1 = square.vert1[0] - offsetX;
@@ -1013,7 +1016,7 @@ function dilatePolygon(gl, positionBuffer, polygons, index, scale) {
 
 
 function redrawPolygons(gl, positionBuffer, polygons) {
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  // gl.clear(gl.COLOR_BUFFER_BIT);
 
   polygons.forEach(function(vertices) {
       var positions = [];
@@ -1048,7 +1051,7 @@ function findNearestVertexIndex(polygons, x, y) {
 }
 
 function drawPolygon(gl, positionBuffer, polygons) {
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  // gl.clear(gl.COLOR_BUFFER_BIT);
 
   polygons.forEach(function(vertices) {
     var positions = [];
