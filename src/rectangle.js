@@ -5,7 +5,6 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
     // gl.clear(gl.COLOR_BUFFER_BIT); // Clear canvas before drawing
   
     rectangles.forEach(function (rect) {
-      // Convert coordinates to WebGL space (-1 to 1)
       gl.uniform4fv(colorLocation, rect.color);
       var positions = [
         rect.vert1[0], rect.vert1[1],
@@ -13,17 +12,13 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
         rect.vert4[0], rect.vert4[1],
         rect.vert3[0], rect.vert3[1]
       ].map(function(val, index) {
-        // Convert X coordinates
         if (index % 2 === 0) {
           return ((val + offsetX) / gl.canvas.width) * 2 - 1;
         }
-        // Convert Y coordinates
         else {
           return (1 - (val + offsetY) / gl.canvas.height) * 2 - 1;
         }
       });
-  
-      // Scale the rectangle based on height and width
       for (let i = 0; i < positions.length; i++) {
         if (i % 2 === 0) positions[i] *= width;
         else positions[i] *= height;
@@ -36,8 +31,7 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
       var offset = 0;
       var count = 4;
       gl.drawArrays(primitiveType, offset, count);
-  
-      // Update last rectangle position
+
       lastRectX = offsetX;
       lastRectY = offsetY;
       lastRectWidth = width;
@@ -46,7 +40,6 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
   }
   
   function moveRectangle(gl, positionBuffer, rectangles, index, newX, newY) {
-    // Move the specified rectangle
     var rect = rectangles[index];
     rect.vert1[0] += newX;
     rect.vert2[0] += newX;
@@ -56,7 +49,6 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
     rect.vert2[1] += newY;
     rect.vert3[1] += newY;
     rect.vert4[1] += newY;
-  
   
     // Redraw all rectangles
     drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
@@ -88,7 +80,6 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
   }
   
   function changeWidth(gl, positionBuffer, rectangles, index, newWidth) {
-    // Get the rectangle
     var rect = rectangles[index];
   
     // Calculate the scale factor
@@ -105,7 +96,6 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
   
   function changeHeight(gl, positionBuffer, rectangles, index, newHeight) {
     var rect = rectangles[index];
-  
   
     // Calculate the scale factor
     var midpoint = (rect.vert1[1] + rect.vert3[1]) / 2;
@@ -128,11 +118,9 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
     function animate(timestamp) {
       if (!start) start = timestamp;
       var progress = timestamp - start;
-  
-      // Update total rotation based on the progress
-      totalRotation += rotationAngle * progress / 1000; // Convert to seconds
-  
-      // Draw rectangles with updated rotation
+
+      totalRotation += rotationAngle * progress / 1000;
+
       rotateRectangle(gl, positionBuffer, rectangles, index, totalRotation);
   
       // Continue the animation if the flag is set
@@ -158,7 +146,6 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
   }
   
   function changeColorRect(gl, positionBuffer, rectangles, index, newColor) {
-    // Get the rectangle
     var rect = rectangles[index];
     rect.color = newColor;
     console.log("Color:", newColor);
@@ -168,36 +155,24 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
   }
 
   function dilateRectangle(gl, positionBuffer, rectangles, index, vertexIndex, scaleFactor) {
-    // Get the rectangle
     var rect = rectangles[index];
-  
 
-
-
-  // Get the vertex to be the center of dilation
   var centerVertex = rect['vert' + vertexIndex];
 
-  // Iterate over each vertex in the square
   for (var i = 1; i <= 4; i++) {
-    // Skip the center vertex
     if (i === vertexIndex) continue;
 
-    // Get the current vertex
     var vertex = rect['vert' + i];
 
-    // Calculate the direction from the center vertex to the current vertex
     var directionX = vertex[0] - centerVertex[0];
     var directionY = vertex[1] - centerVertex[1];
 
-    // Scale the direction
     var scaledDirectionX = directionX * scaleFactor;
     var scaledDirectionY = directionY * scaleFactor;
 
-    // Calculate the new position of the vertex
     var newVertexX = centerVertex[0] + scaledDirectionX;
     var newVertexY = centerVertex[1] + scaledDirectionY;
 
-    // Update the position of the vertex
     vertex[0] = newVertexX;
     vertex[1] = newVertexY;
   }
