@@ -129,7 +129,7 @@ function rotatePolygon(gl, positionBuffer, polygons, index, angle) {
   function addVertex(polygon, x, y, color) {
     polygon.push([x, y, color]);
   }
-  
+
   function calculateCentroid(polygon) {
     var centroid = [0, 0];
     polygon.forEach(function(vertex) {

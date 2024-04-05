@@ -16,6 +16,7 @@ let selectedPolygonIndex = -1;
 let selectedVertexIndex = -1;
 let selectedVertexSquare = -1;
 var selectedVertexRectIndex = null
+var selectedVertexPolyIndex = null
 var lastVertex = { x: 0, y: 0 };
 
 var lastRectX, lastRectY, lastRectWidth, lastRectHeight;
@@ -96,6 +97,24 @@ function updateShapeList() {
     });
   
     
+  }
+
+  function updatePolygonVertex(){
+    var vertexList = document.getElementById("vertexListPolygon");
+    while (vertexList.firstChild) {
+      vertexList.removeChild(vertexList.firstChild);
+    }
+    allPolygons.forEach(function(polygon, index) {
+      console.log("rrr ", polygon)
+      if(index==0){
+        for(var i=0;i<polygon.length;i++){
+          var option = document.createElement("option");
+          option.value = i;
+          option.textContent = "Vertex " + (i + 1); // Change this to display the shape's properties if you want
+          vertexList.appendChild(option);
+        }
+      }
+    });
   }
 
 
@@ -218,7 +237,7 @@ function main() {
       else {
         var positions = [click.x, click.y, x, y];
         console.log(positions)
-        lines.push({ positions: positions, rotation: 0, color:[1, 1, 1, 1] }); // Add the line's coordinates and rotation to the array
+        lines.push({ positions: positions, rotation: 0, color:[0, 0, 0, 1] }); // Add the line's coordinates and rotation to the array
         redrawLines(
           gl,
           program,
@@ -264,7 +283,7 @@ function main() {
       } else {
         isDrawingRect = false;
         var endPoint = [event.clientX, event.clientY];
-        var newRect = { vert1: startPointRect, vert2 :[endPoint[0], startPointRect[1]] ,vert3: endPoint, vert4:[startPointRect[0], endPoint[1]],color: [1, 1, 1, 1]};
+        var newRect = { vert1: startPointRect, vert2 :[endPoint[0], startPointRect[1]] ,vert3: endPoint, vert4:[startPointRect[0], endPoint[1]],color: [0, 0, 0, 1]};
         rectangles.push(newRect);
         console.log("Rectangle:", newRect);
         lastIndex = rectangles.length - 1; // Update the index of the last drawn rectangle
@@ -300,7 +319,7 @@ function main() {
           endPointSqrt[1] = startPointSqrt[1] + size;
         }
   
-        var newSquare =  { vert1: startPointSqrt, vert2 :[endPointSqrt[0], startPointSqrt[1]] ,vert3: endPointSqrt, vert4:[startPointSqrt[0], endPointSqrt[1]], color: [1, 1, 1, 1]};
+        var newSquare =  { vert1: startPointSqrt, vert2 :[endPointSqrt[0], startPointSqrt[1]] ,vert3: endPointSqrt, vert4:[startPointSqrt[0], endPointSqrt[1]], color: [0,0,0, 1]};
         squares.push(newSquare);
         lastIndex = squares.length - 1; // Update the index of the last drawn square
         drawSquares(gl, positionBuffer, squares, 0, 0, 0, 0);
@@ -318,7 +337,7 @@ function main() {
         console.log("isDrawingPoly", isDrawingPoly);
         if (clickCount < 3) { // Jika belum ada 3 klik, tambahkan titik baru
           console.log("currentPolygon", currentPolygon)
-          addVertex(currentPolygon, x, y,[1, 1, 1, 1]); 
+          addVertex(currentPolygon, x, y,[0,0,0, 1]); 
           console.log(clickCount, currentPolygon);
           lastIndex = allPolygons.length - 1;
           console.log("lastIndex", lastIndex);
@@ -326,6 +345,7 @@ function main() {
           console.log("lastVertex", lastVertex);
           console.log("lastVertexY", lastVertex.y);
           var isPolygonExsist = false;
+          updatePolygonVertex();
           for (var i = 0; i < allPolygons.length; i++) {
             var polygon = allPolygons[i];
             if (polygon === currentPolygon) {
@@ -351,11 +371,11 @@ function main() {
           updateShapeList();
         } else { 
           // Jika sudah ada 3 klik, tambahkan sudut pada shape yang sudah ada
-            addVertex(currentPolygon, x, y, [1,1,1,1]); // Tambahkan sudut baru
+            addVertex(currentPolygon, x, y, [0,0,0,1]); // Tambahkan sudut baru
             console.log("New angle added at (" + x + ", " + y + ")");
             console.log("Current polygon:", currentPolygon);
             drawPolygon(gl, positionBuffer, [currentPolygon]); // Gambar ulang shape dengan sudut baru
-
+            updatePolygonVertex();
             // Gambar garis dari sudut terakhir ke titik yang baru ditambahkan
             gl.useProgram(program);
             var newVertices = [lastVertex, { x: x, y: y }];
@@ -706,6 +726,8 @@ function main() {
   var animationPoly = document.getElementById("animationPoly");
   var stopAnimationPoly = document.getElementById("stopAnimationPoly");
   var colorPickerPoly = document.getElementById("colorPickerPoly");
+  var deleteVertex = document.getElementById("deleteVertexButton");
+  var selectedVertexPolygonIndex = document.getElementById("vertexListPolygon")
   sliderYPoly.addEventListener("input", function(event) {
     if(selectedPolygonIndex !== -1) {
       var y = parseFloat(event.target.value);
@@ -765,6 +787,21 @@ function main() {
     console.log("ppppp ", allPolygons)
     changeColorPoly(gl, positionBuffer, allPolygons,0, [colorArray.r, colorArray.g, colorArray.b, 1]);
   });
+  selectedVertexPolygonIndex.addEventListener("click", function(event) {
+    var vertex = event.target.value;
+    console.log("Vertex:", vertex);
+    selectedVertexPolyIndex = parseInt(vertex);
+  });
+  deleteVertex.addEventListener("click", function(event) {
+    console.log("Delete vertex");
+    console.log(currentPolygon)
+    if(currentPolygon.length > 3){
+      currentPolygon.splice(selectedVertexPolyIndex, 1);
+    }
+    drawPolygon(gl, positionBuffer, [currentPolygon]);
+    updatePolygonVertex();
+  });
+
 
 }
 
