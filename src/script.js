@@ -132,7 +132,7 @@ function main() {
   // look up where the vertex data needs to go.
   var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
   var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  var colorLocation = gl.getUniformLocation(program, "u_color");
+  colorLocation = gl.getUniformLocation(program, "u_color");
   var translationLocation = gl.getUniformLocation(program, "u_translation");
   var rotationLocation = gl.getUniformLocation(program, "u_rotation");
   var aspectRatioLocation = gl.getUniformLocation(program, "u_aspectRatio");
@@ -216,7 +216,8 @@ function main() {
       }
       else {
         var positions = [click.x, click.y, x, y];
-        lines.push({ positions: positions, rotation: 0 }); // Add the line's coordinates and rotation to the array
+        console.log(positions)
+        lines.push({ positions: positions, rotation: 0, color:[1, 1, 1, 1] }); // Add the line's coordinates and rotation to the array
         redrawLines(
           gl,
           program,
@@ -262,7 +263,7 @@ function main() {
       } else {
         isDrawingRect = false;
         var endPoint = [event.clientX, event.clientY];
-        var newRect = { vert1: startPointRect, vert2 :[endPoint[0], startPointRect[1]] ,vert3: endPoint, vert4:[startPointRect[0], endPoint[1]]};
+        var newRect = { vert1: startPointRect, vert2 :[endPoint[0], startPointRect[1]] ,vert3: endPoint, vert4:[startPointRect[0], endPoint[1]],color: [1, 1, 1, 1]};
         rectangles.push(newRect);
         console.log("Rectangle:", newRect);
         lastIndex = rectangles.length - 1; // Update the index of the last drawn rectangle
@@ -298,7 +299,7 @@ function main() {
           endPointSqrt[1] = startPointSqrt[1] + size;
         }
   
-        var newSquare =  { vert1: startPointSqrt, vert2 :[endPointSqrt[0], startPointSqrt[1]] ,vert3: endPointSqrt, vert4:[startPointSqrt[0], endPointSqrt[1]]};
+        var newSquare =  { vert1: startPointSqrt, vert2 :[endPointSqrt[0], startPointSqrt[1]] ,vert3: endPointSqrt, vert4:[startPointSqrt[0], endPointSqrt[1]], color: [1, 1, 1, 1]};
         squares.push(newSquare);
         lastIndex = squares.length - 1; // Update the index of the last drawn square
         drawSquares(gl, positionBuffer, squares, 0, 0, 0, 0);
@@ -477,6 +478,7 @@ function main() {
   var dilatationSliderLine = document.getElementById("dilateLine");
   var animationLine = document.getElementById("animationLine");
   var stopAnimationLine = document.getElementById("stopAnimationLine");
+  var colorPickerLine = document.getElementById("colorPickerLine");
   var dilateOneVertexLine = document.getElementById("dilateOneVertexLine");
 
   rotationSliderLine.addEventListener("input", function(event) {
@@ -533,6 +535,13 @@ function main() {
     dilateLineFromVertex(gl, positionBuffer, lines, lineIndex, vertexIndex, scaleFactor);
 });
 
+  colorPickerLine.addEventListener("input", function (event) {
+    var color = event.target.value;
+    console.log("Color:", color);
+    var colorArray = hexToRgb(color);
+    gl.uniform4f(colorLocation, colorArray.r, colorArray.g, colorArray.b, 1);
+    changeColorLine(gl, positionBuffer, lines, selectedLineIndex, [colorArray.r, colorArray.g, colorArray.b, 1]);
+  });
 
   // PUNYA RECTANGLE
   var heightSliderRect = document.getElementById("sliderHeightRect");
@@ -542,6 +551,7 @@ function main() {
   var rotationSliderRect = document.getElementById("rotationRectangle");
   var animationRect = document.getElementById("animationRectangle");
   var stopAnimationRect = document.getElementById("stopAnimationRectangle");
+  var colorPickerRect = document.getElementById("colorPickerRect");
 
   rotationSliderRect.addEventListener("input", function (event) {
       var rotation = event.target.value;
@@ -585,6 +595,14 @@ function main() {
     stopAnimation();
   });
 
+  colorPickerRect.addEventListener("input", function (event) {
+    var color = event.target.value;
+    console.log("Color:", color);
+    var colorArray = hexToRgb(color);
+    gl.uniform4f(colorLocation, colorArray.r, colorArray.g, colorArray.b, 1);
+    changeColorRect(gl, positionBuffer, rectangles, selectedRectIndex, [colorArray.r, colorArray.g, colorArray.b, 1]);
+  });
+
   //PUNYA SQUARE
   var xSliderSquare = document.getElementById("translateSquareX");
   var ySliderSquare = document.getElementById("translateSquareY");
@@ -593,6 +611,7 @@ function main() {
   var animationSquare = document.getElementById("animationSquare");
   var stopAnimationSquare = document.getElementById("stopAnimationSquare");
   var dilateOneVertex = document.getElementById("dilateOneVertex");
+  var colorPickerSquare = document.getElementById("colorPickerSquare");
   xSliderSquare.addEventListener("input", function (event) {
       var x = parseFloat(event.target.value);
       console.log("X:", x);
@@ -664,6 +683,14 @@ function main() {
   });
   
 
+  colorPickerSquare.addEventListener("input", function (event) {
+    var color = event.target.value;
+    console.log("Color square:", color);
+    console.log(selectedSquareIndex)
+    var colorArray = hexToRgb(color);
+    gl.uniform4f(colorLocation, colorArray.r, colorArray.g, colorArray.b, 1);
+    changeColorSquare(gl, positionBuffer, squares, selectedSquareIndex, [colorArray.r, colorArray.g, colorArray.b, 1]);
+  });
 
   //SLIDER POLYGON
   var sliderYPoly = document.getElementById("sliderYPoly");

@@ -19,6 +19,7 @@ function drawSquares(
     var y3 = square.vert3[1] - offsetY;
     var x4 = square.vert4[0] - offsetX;
     var y4 = square.vert4[1] - offsetY;
+    gl.uniform4fv(colorLocation, square.color);
 
     // Calculate the center of the square
     var centerX = (x1 + x2) / 2;
@@ -143,6 +144,16 @@ function stopAnimation() {
     cancelAnimationFrame(requestId);
     requestId = null;
   }
+}
+function changeColorSquare(gl, positionBuffer, squares, index, newColor) {
+  // Get the rectangle
+  var square = squares[index];
+  console.log("ssssss ",square)
+  square.color = newColor;
+  console.log("Color:", newColor);
+
+  // Redraw all rectangles
+  drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0);
 }
 
 
