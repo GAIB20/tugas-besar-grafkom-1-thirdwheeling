@@ -21,11 +21,9 @@ function drawSquares(
     var y4 = square.vert4[1] - offsetY;
     gl.uniform4fv(colorLocation, square.color);
 
-    // Calculate the center of the square
     var centerX = (x1 + x2) / 2;
     var centerY = (y1 + y2) / 2;
 
-    // Apply rotation around the center of the square
     var cos = Math.cos(rotation);
     var sin = Math.sin(rotation);
     var rotatedX1 = centerX + (x1 - centerX) * cos - (y1 - centerY) * sin;
@@ -37,7 +35,6 @@ function drawSquares(
     var rotatedX4 = centerX + (x4 - centerX) * cos - (y4 - centerY) * sin;
     var rotatedY4 = centerY + (x4 - centerX) * sin + (y4 - centerY) * cos;
 
-    // Apply dilation
     if (index === squares.length - 1) {
       rotatedX1 = centerX + (rotatedX1 - centerX) * scaleFactor;
       rotatedX2 = centerX + (rotatedX2 - centerX) * scaleFactor;
@@ -49,7 +46,6 @@ function drawSquares(
       rotatedY4 = centerY + (rotatedY4 - centerY) * scaleFactor;
     }
 
-    // Translate back
     rotatedX1 += offsetX;
     rotatedY1 += offsetY;
     rotatedX2 += offsetX;
@@ -59,7 +55,6 @@ function drawSquares(
     rotatedX4 += offsetX;
     rotatedY4 += offsetY;
 
-    // Convert coordinates to WebGL space (-1 to 1)
     var squareX1 = (rotatedX1 / gl.canvas.width) * 2 - 1;
     var squareY1 = (1 - rotatedY1 / gl.canvas.height) * 2 - 1;
     var squareX2 = (rotatedX2 / gl.canvas.width) * 2 - 1;
@@ -118,26 +113,20 @@ function animateSquare(gl, positionBuffer, squares, index, rotationAngle) {
     if (!start) start = timestamp;
     var progress = timestamp - start;
 
-    // Update total rotation based on the progress
     totalRotation += rotationAngle * progress / 1000; // Convert to seconds
 
-    // Draw squares with updated rotation
     drawSquares(gl, positionBuffer, squares, 1, 0, 0, totalRotation);
 
-    // Continue the animation if the flag is set
     if (continueAnimation) {
       requestId = requestAnimationFrame(animate);
     } else {
-      // Animation stopped
       requestId = null;
     }
   }
 
-  // Start the animation
   requestId = requestAnimationFrame(animate);
 }
 
-// To stop the animation
 function stopAnimation() {
   continueAnimation = false;
   if (requestId) {
@@ -152,58 +141,45 @@ function changeColorSquare(gl, positionBuffer, squares, index, newColor) {
   square.color = newColor;
   console.log("Color:", newColor);
 
-  // Redraw all rectangles
   drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0);
 }
 
 
 function scaleVertex(square, vertexIndex, scaleFactor) {
-  // Check if the vertex index is valid
   if (vertexIndex < 1 || vertexIndex > 4) {
     console.error('Invalid vertex index. Must be between 1 and 4.');
     return;
   }
 
-  // Get the vertex to scale
   var vertex = square['vert' + vertexIndex];
 
-  // Calculate the center of the square
   var centerX = (square.vert1[0] + square.vert2[0] + square.vert3[0] + square.vert4[0]) / 4;
   var centerY = (square.vert1[1] + square.vert2[1] + square.vert3[1] + square.vert4[1]) / 4;
 
-  // Calculate the direction from the center to the vertex
   var directionX = vertex[0] - centerX;
   var directionY = vertex[1] - centerY;
 
-  // Scale the direction
   var scaledDirectionX = directionX * scaleFactor;
   var scaledDirectionY = directionY * scaleFactor;
 
-  // Calculate the new position of the vertex
   var newVertexX = centerX + scaledDirectionX;
   var newVertexY = centerY + scaledDirectionY;
 
-  // Update the position of the vertex
   vertex[0] = newVertexX;
   vertex[1] = newVertexY;
 }
 
 function updateVertexSquareList() {
-  // Clear vertexList
   vertexList = [];
 
-  // Get the select element
   var vertexSelect = document.getElementById("vertexSquareList");
 
-  // Clear the select element
   vertexSelect.innerHTML = '';
 
   squares.forEach(function (square, squareIndex) {
-    // Push the vertices into vertexList
     [square.vert1, square.vert2, square.vert3, square.vert4].forEach(function (vertex, vertexIndex) {
       vertexList.push({ squareIndex: squareIndex, vertexIndex: vertexIndex, vertex: vertex });
 
-      // Create an option for each vertex and append it to the select element
       var option = document.createElement("option");
       option.value = vertexList.length - 1; // The value is the index of the vertex in vertexList
       option.textContent = "Square " + (squareIndex + 1) + ", Vertex " + (vertexIndex + 1);
@@ -213,43 +189,32 @@ function updateVertexSquareList() {
 }
 
 function dilateSquareFromVertex(gl, positionBuffer, squares, squareIndex, vertexIndex, scaleFactor) {
-  // Check if the vertex index is valid
   if (vertexIndex < 1 || vertexIndex > 4) {
     console.error('Invalid vertex index. Must be between 1 and 4.');
     return;
   }
 
-  // Get the square
   var square = squares[squareIndex];
 
-  // Get the vertex to be the center of dilation
   var centerVertex = square['vert' + vertexIndex];
 
-  // Iterate over each vertex in the square
   for (var i = 1; i <= 4; i++) {
-    // Skip the center vertex
     if (i === vertexIndex) continue;
 
-    // Get the current vertex
     var vertex = square['vert' + i];
 
-    // Calculate the direction from the center vertex to the current vertex
     var directionX = vertex[0] - centerVertex[0];
     var directionY = vertex[1] - centerVertex[1];
 
-    // Scale the direction
     var scaledDirectionX = directionX * scaleFactor;
     var scaledDirectionY = directionY * scaleFactor;
 
-    // Calculate the new position of the vertex
     var newVertexX = centerVertex[0] + scaledDirectionX;
     var newVertexY = centerVertex[1] + scaledDirectionY;
 
-    // Update the position of the vertex
     vertex[0] = newVertexX;
     vertex[1] = newVertexY;
   }
 
-  // Redraw all squares
   drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0); // scaleFactor is set to 1
 }

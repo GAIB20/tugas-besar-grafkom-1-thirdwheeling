@@ -63,36 +63,34 @@ function resizeCanvasToDisplaySize(canvas, scale) {
 function updateShapeList() {
     var shapeList = document.getElementById("shapeList");
   
-    // Clear the list
     while (shapeList.firstChild) {
       shapeList.removeChild(shapeList.firstChild);
     }
-    // Add an option for each shape
     lines.forEach(function(rect, index) {
       var option = document.createElement("option");
       option.value = index;
-      option.textContent = "Lines " + (index + 1); // Change this to display the shape's properties if you want
+      option.textContent = "Lines " + (index + 1); 
       shapeList.appendChild(option);
     });
   
     rectangles.forEach(function(rect, index) {
       var option = document.createElement("option");
       option.value = index;
-      option.textContent = "Rectangle " + (index + 1); // Change this to display the shape's properties if you want
+      option.textContent = "Rectangle " + (index + 1); 
       shapeList.appendChild(option);
     });
   
     squares.forEach(function(rect, index) {
       var option = document.createElement("option");
       option.value = index;
-      option.textContent = "Square " + (index + 1); // Change this to display the shape's properties if you want
+      option.textContent = "Square " + (index + 1); 
       shapeList.appendChild(option);
     });
   
     allPolygons.forEach(function(rect, index) {
       var option = document.createElement("option");
       option.value = index;
-      option.textContent = "Polygon " + (index + 1); // Change this to display the shape's properties if you want
+      option.textContent = "Polygon " + (index + 1); 
       shapeList.appendChild(option);
     });
   
@@ -110,7 +108,7 @@ function updateShapeList() {
         for(var i=0;i<polygon.length;i++){
           var option = document.createElement("option");
           option.value = i;
-          option.textContent = "Vertex " + (i + 1); // Change this to display the shape's properties if you want
+          option.textContent = "Vertex " + (i + 1); 
           vertexList.appendChild(option);
         }
       }
@@ -173,12 +171,11 @@ function main() {
   // Turn on the attribute
   gl.enableVertexAttribArray(positionAttributeLocation);
 
-  // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-  var size = 2;          // 2 components per iteration
-  var type = gl.FLOAT;   // the data is 32bit floats
-  var normalize = false; // don't normalize the data
-  var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-  var offset = 0;        // start at the beginning of the buffer
+  var size = 2;          
+  var type = gl.FLOAT;   
+  var normalize = false; 
+  var stride = 0;       
+  var offset = 0;      
   gl.vertexAttribPointer(
     positionAttributeLocation, size, type, normalize, stride, offset);
 
@@ -187,15 +184,12 @@ function main() {
 
   buttons.forEach(function(button) {
     button.addEventListener("click", function(event) {
-      // Remove "selected" class from all buttons
       buttons.forEach(function(btn) {
         btn.classList.remove("selected");
       });
 
-      // Add "selected" class to the clicked button
       this.classList.add("selected");
 
-      // Log the text of the clicked button
       console.log("Clicked button:", this.textContent);
       selectedShape = this.textContent;
     });
@@ -203,7 +197,6 @@ function main() {
 
   
 
-  // Listen for mouse clicks on the canvas
   var click = []; // Array to store click coordinates
   var isDrawingRect = false;
   var isDrawingSqrt = false;
@@ -220,17 +213,13 @@ function main() {
       let x = event.clientX - canvas.offsetLeft;
       let y = event.clientY - canvas.offsetTop;
     
-      // Convert click coordinates to WebGL clip space
       x = (x / canvas.width) * 2 - 1;
       y = (y / canvas.height) * -2 + 1;
     
       console.log("Clicked at " + x + "," + y);
       console.log("Canvas size: " + canvas.width + "," + canvas.height);
-      // Store click coordinates
-      // click.push({ x, y });
+
     
-    
-      // Draw lines when two points are clicked
       if (click === null) {
         click = { x, y };
       }
@@ -246,7 +235,7 @@ function main() {
           lines
         );
         updateVertexLineList();
-        click = null; // Reset click variable
+        click = null; 
         console.log("Line drawn: " + positions);
       }
     
@@ -257,7 +246,6 @@ function main() {
         var dy1 = positions[1] - y;
         var dx2 = positions[2] - x;
         var dy2 = positions[3] - y;
-        // If the click is within 0.1 units of the line, select it
         if (Math.sqrt(dx1 * dx1 + dy1 * dy1) < 0.1 || Math.sqrt(dx2 * dx2 + dy2 * dy2) < 0.1) {
           selectedLineIndex = i;
           break;
@@ -269,7 +257,6 @@ function main() {
       console.log("Rectangle selected");
       
 
-      // Variables to keep track of last rectangle position
       lastRectX = 0;
       lastRectY = 0;
       lastRectWidth = 0;
@@ -299,12 +286,10 @@ function main() {
         isDrawingSqrt = false;
         var endPointSqrt = [event.clientX, event.clientY];
   
-        // Calculate the width and height of the square
         var width = Math.abs(endPointSqrt[0] - startPointSqrt[0]);
         var height = Math.abs(endPointSqrt[1] - startPointSqrt[1]);
   
-        // Make the width and height equal to form a square
-        var size = Math.max(width, height); // Use max instead of min
+        var size = Math.max(width, height);
   
         // Adjust the end point to form a square
         if (endPointSqrt[0] < startPointSqrt[0]) {
@@ -321,7 +306,7 @@ function main() {
   
         var newSquare =  { vert1: startPointSqrt, vert2 :[endPointSqrt[0], startPointSqrt[1]] ,vert3: endPointSqrt, vert4:[startPointSqrt[0], endPointSqrt[1]], color: [0,0,0, 1]};
         squares.push(newSquare);
-        lastIndex = squares.length - 1; // Update the index of the last drawn square
+        lastIndex = squares.length - 1;
         drawSquares(gl, positionBuffer, squares, 0, 0, 0, 0);
         updateVertexSquareList();
         updateShapeList();
@@ -335,7 +320,7 @@ function main() {
       var lastIndex = -1;
       if (!isDrawingPoly) {
         console.log("isDrawingPoly", isDrawingPoly);
-        if (clickCount < 3) { // Jika belum ada 3 klik, tambahkan titik baru
+        if (clickCount < 3) { 
           console.log("currentPolygon", currentPolygon)
           addVertex(currentPolygon, x, y,[0,0,0, 1]); 
           console.log(clickCount, currentPolygon);
@@ -350,7 +335,6 @@ function main() {
             var polygon = allPolygons[i];
             if (polygon === currentPolygon) {
               console.log("Polygon found at index", i);
-              // Update polygon
               allPolygons[i] = currentPolygon;
               isPolygonExsist = true;
               lastIndex = i;
@@ -370,13 +354,11 @@ function main() {
           clickCount++;
           updateShapeList();
         } else { 
-          // Jika sudah ada 3 klik, tambahkan sudut pada shape yang sudah ada
-            addVertex(currentPolygon, x, y, [0,0,0,1]); // Tambahkan sudut baru
+            addVertex(currentPolygon, x, y, [0,0,0,1]);
             console.log("New angle added at (" + x + ", " + y + ")");
             console.log("Current polygon:", currentPolygon);
-            drawPolygon(gl, positionBuffer, [currentPolygon]); // Gambar ulang shape dengan sudut baru
+            drawPolygon(gl, positionBuffer, [currentPolygon]); 
             updatePolygonVertex();
-            // Gambar garis dari sudut terakhir ke titik yang baru ditambahkan
             gl.useProgram(program);
             var newVertices = [lastVertex, { x: x, y: y }];
             var newBuffer = gl.createBuffer();
@@ -388,8 +370,6 @@ function main() {
             gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
 
             // gl.drawArrays(gl.LINES, 0, newVertices.length);
-
-            // jika polygon yang sedang digambar hanya menambah sudut, maka tidak perlu menambahkan polygon baru
             
             var isPolygonExsist = false;
             for (var i = 0; i < allPolygons.length; i++) {
@@ -515,33 +495,25 @@ function main() {
   });
 
   dilateOneVertexLine.addEventListener("input", function () {
-    // Get the select element
     var vertexSelect = document.getElementById("vertexLineList");
 
-    // Get the selected option
     var selectedOption = vertexSelect.options[vertexSelect.selectedIndex];
 
-    // Split the value to extract line index and vertex index
     var indices = selectedOption.value.split("_");
     var lineIndex = parseInt(indices[0]);
     var vertexIndex = parseInt(indices[1]);
 
-    // Check if the indices are valid
     if (isNaN(lineIndex) || isNaN(vertexIndex) || lineIndex < 0 || lineIndex >= lines.length || vertexIndex < 1 || vertexIndex > 2) {
         console.error('Invalid line or vertex index.');
         return;
     }
 
-    // Get the dilation factor from the slider and convert it to a float
     var scaleFactor = parseFloat(dilateOneVertexLine.value);
 
-    // If the slider allows only positive values, we need to handle negative values
     if (scaleFactor < 0) {
-        // Invert the scale factor to ensure shrinking
         scaleFactor = 1 / Math.abs(scaleFactor);
     }
 
-    // Call the dilation function
     dilateLineFromVertex(gl, positionBuffer, lines, lineIndex, vertexIndex, scaleFactor);
 });
 
@@ -679,32 +651,24 @@ function main() {
   });
 
   dilateOneVertex.addEventListener("input", function () {
-    // Get the select element
     var vertexSelect = document.getElementById("vertexSquareList");
   
-    // Get the selected vertex index from the dropdown list
     var selectedVertexIndex = vertexSelect.value;
   
-    // Get the square and vertex index from the vertexList
     var squareIndex = vertexList[selectedVertexIndex].squareIndex;
     var vertexIndex = vertexList[selectedVertexIndex].vertexIndex;
   
-    // Check if the vertex index is valid
     if (vertexIndex < 1 || vertexIndex > 4) {
       console.error('Invalid vertex index. Must be between 1 and 4.');
       return;
     }
   
-    // Get the dilation factor from the slider and convert it to a float
     var scaleFactor = parseFloat(dilateOneVertex.value);
   
-    // If the slider allows only positive values, we need to handle negative values
     if (scaleFactor < 0) {
-      // Invert the scale factor to ensure shrinking
       scaleFactor = 1 / Math.abs(scaleFactor);
     }
   
-    // Call the dilation function
     dilateSquareFromVertex(gl, positionBuffer, squares, squareIndex, vertexIndex, scaleFactor);
   });
   
@@ -739,7 +703,7 @@ function main() {
         console.log("currentPolygons", currentPolygon);
         translatePolygon(gl, positionBuffer, polygons, selectedPolygonIndex, 0, deltaY*0.5);
         console.log("translatePolygon by deltaY", deltaY*0.5);
-        lastVertex.y = y; // Update last vertex Y position
+        lastVertex.y = y; 
     } else {
         console.log("Last vertex Y:", y);
     }
@@ -755,7 +719,7 @@ function main() {
         console.log("Translating by ",  deltaX);
         translatePolygon(gl, positionBuffer, polygons, selectedPolygonIndex, deltaX*0.5, 0);
         console.log("translatePolygon");
-        lastVertex.x = x; // Update last vertex X position
+        lastVertex.x = x;
     } else {
         console.log("Last vertex X:", x);
     }});

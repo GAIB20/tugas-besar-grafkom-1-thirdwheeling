@@ -1,6 +1,3 @@
-
-// FUNGSI PUNYA LINE
-
 function createLine(
     gl,
     program,
@@ -13,7 +10,6 @@ function createLine(
     translationY,
     scaleFactor
   ) {
-    // Calculate centroid of the line's positions
     let centerX = 0;
     let centerY = 0;
     for (let i = 0; i < positions.length; i += 2) {
@@ -26,24 +22,19 @@ function createLine(
 
     
   
-    // Apply translation and rotation to the positions
     let transformedPositions = [];
     for (let i = 0; i < positions.length; i += 2) {
-      // Translate the point to the centroid
       let x = positions[i] - centerX;
       let y = positions[i + 1] - centerY;
   
-      // Apply dilation
       x *= scaleFactor;
       y *= scaleFactor;
   
-      // Apply rotation
       let cos = Math.cos(rotation);
       let sin = Math.sin(rotation);
       let rotatedX = x * cos - y * sin;
       let rotatedY = x * sin + y * cos;
   
-      // Apply translation
       rotatedX += centerX + translationX;
       rotatedY += centerY + translationY;
   
@@ -63,10 +54,8 @@ function createLine(
     positionBuffer,
     lines, scaleFactor
   ) {
-    // Clear the canvas
     // gl.clear(gl.COLOR_BUFFER_BIT);
   
-    // Iterate over the lines array and redraw each line
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
       createLine(
@@ -131,7 +120,7 @@ function createLine(
   }
   
   function updateRotation(event, gl) {
-    rotationAngle = parseInt(event.target.value) * Math.PI / 180; // Convert degrees to radians
+    rotationAngle = parseInt(event.target.value) * Math.PI / 180; 
     if (lines.length > 0) {
       var currentLine = lines[lines.length - 1];
       var centerX = (currentLine.positions[0] + currentLine.positions[2]) / 2;
@@ -179,12 +168,10 @@ function createLine(
     }
   }
   function changeColorLine(gl, positionBuffer, lines, index, newColor) {
-    // Get the rectangle
     var line = lines[index];
     line.color = newColor;
     console.log("Color:", newColor);
   
-    // Redraw all rectangles
     redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines, 1);
   }
 
@@ -195,7 +182,7 @@ function createLine(
         for (var j = 1; j <= 2; j++) {
             var vertexLine = document.createElement("option");
             vertexLine.innerHTML = "Line " + (i + 1) + ", Vertex " + j;
-            vertexLine.value = i + "_" + j; // Set value as lineIndex_vertexIndex
+            vertexLine.value = i + "_" + j; 
             vertexLineList.appendChild(vertexLine);
         }
     }
@@ -204,27 +191,21 @@ function createLine(
 
 function dilateLineFromVertex(gl, positionBuffer, lines, index, vertexIndex, scaleFactor) {
   var line = lines[index];
-  var vertexPositionIndex = (vertexIndex - 1) * 2; // Convert vertex index to position index
+  var vertexPositionIndex = (vertexIndex - 1) * 2; 
 
-  // Get the coordinates of the selected vertex
   var vertexX = line.positions[vertexPositionIndex];
   var vertexY = line.positions[vertexPositionIndex + 1];
 
-  // Iterate through each vertex position
   for (var i = 0; i < line.positions.length; i += 2) {
-      // Calculate the distance from the selected vertex to the current vertex position
       var deltaX = line.positions[i] - vertexX;
       var deltaY = line.positions[i + 1] - vertexY;
 
-      // Scale the distances
       deltaX *= scaleFactor;
       deltaY *= scaleFactor;
 
-      // Update the vertex position based on the scaled distances and add back the selected vertex position
       line.positions[i] = deltaX + vertexX;
       line.positions[i + 1] = deltaY + vertexY;
   }
 
-  // Redraw the lines
   redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
 }

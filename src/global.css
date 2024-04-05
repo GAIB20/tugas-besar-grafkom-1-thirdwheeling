@@ -115,7 +115,6 @@ body{
     display: none;
 }
 
-/* Add this CSS to your global.css file or within a <style> tag in your HTML */
 
 input[type="range"] {
     -webkit-appearance: none;
@@ -151,9 +150,6 @@ input[type="range"]::-moz-range-thumb {
     cursor: pointer;
 }
 
-
-/* Add this CSS to your global.css file or within a <style> tag in your HTML */
-
 #sidebar-right .button {
     display: block;
     margin-bottom: 10px;
@@ -171,7 +167,6 @@ input[type="range"]::-moz-range-thumb {
     background-color: #0056b3;
 }
 
-/* Style the animation and stop buttons */
 
 #sidebar-right button[for="animation"],
 #sidebar-right button[for="stopAnimation"] {
@@ -191,9 +186,6 @@ input[type="range"]::-moz-range-thumb {
 }
 
 
-/* Add this CSS to your global.css file or within a <style> tag in your HTML */
-
-/* Style the dropdown menu */
 select {
     width: 100%;
     padding: 10px;
@@ -210,7 +202,6 @@ select {
     background-position: right 10px center;
 }
 
-/* Style the dropdown options */
 select option {
     padding: 10px;
     background-color: #fff;
@@ -218,8 +209,8 @@ select option {
 }
 
 label {
-    color: white; /* Set text color to white */
-    font-size: 18px; /* Set font size to 18px */
-    gap: 5px; /* Add some space between the label and the input */
-    margin-bottom: 5px; /* Add some bottom margin for spacing */
+    color: white;
+    font-size: 18px; 
+    gap: 5px; 
+    margin-bottom: 5px;
 }
