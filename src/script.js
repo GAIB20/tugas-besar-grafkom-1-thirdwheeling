@@ -57,45 +57,44 @@ function resizeCanvasToDisplaySize(canvas, scale) {
   }
   return false;
 }
-
 function updateShapeList() {
-  var shapeList = document.getElementById("shapeList");
-
-  // Clear the list
-  while (shapeList.firstChild) {
-    shapeList.removeChild(shapeList.firstChild);
-  }
-  // Add an option for each shape
-  lines.forEach(function(rect, index) {
-    var option = document.createElement("option");
-    option.value = index;
-    option.textContent = "Lines " + (index + 1); // Change this to display the shape's properties if you want
-    shapeList.appendChild(option);
-  });
-
-  rectangles.forEach(function(rect, index) {
-    var option = document.createElement("option");
-    option.value = index;
-    option.textContent = "Rectangle " + (index + 1); // Change this to display the shape's properties if you want
-    shapeList.appendChild(option);
-  });
-
-  squares.forEach(function(rect, index) {
-    var option = document.createElement("option");
-    option.value = index;
-    option.textContent = "Square " + (index + 1); // Change this to display the shape's properties if you want
-    shapeList.appendChild(option);
-  });
-
-  allPolygons.forEach(function(rect, index) {
-    var option = document.createElement("option");
-    option.value = index;
-    option.textContent = "Polygon " + (index + 1); // Change this to display the shape's properties if you want
-    shapeList.appendChild(option);
-  });
-
+    var shapeList = document.getElementById("shapeList");
   
-}
+    // Clear the list
+    while (shapeList.firstChild) {
+      shapeList.removeChild(shapeList.firstChild);
+    }
+    // Add an option for each shape
+    lines.forEach(function(rect, index) {
+      var option = document.createElement("option");
+      option.value = index;
+      option.textContent = "Lines " + (index + 1); // Change this to display the shape's properties if you want
+      shapeList.appendChild(option);
+    });
+  
+    rectangles.forEach(function(rect, index) {
+      var option = document.createElement("option");
+      option.value = index;
+      option.textContent = "Rectangle " + (index + 1); // Change this to display the shape's properties if you want
+      shapeList.appendChild(option);
+    });
+  
+    squares.forEach(function(rect, index) {
+      var option = document.createElement("option");
+      option.value = index;
+      option.textContent = "Square " + (index + 1); // Change this to display the shape's properties if you want
+      shapeList.appendChild(option);
+    });
+  
+    allPolygons.forEach(function(rect, index) {
+      var option = document.createElement("option");
+      option.value = index;
+      option.textContent = "Polygon " + (index + 1); // Change this to display the shape's properties if you want
+      shapeList.appendChild(option);
+    });
+  
+    
+  }
 
 
 function main() {
@@ -455,38 +454,13 @@ function main() {
   // BUTTON BUTTON
   var saveButton = document.getElementById("saveButton");
   saveButton.addEventListener("click", function(event) {
-    var saveData = {
-      lines: lines,
-      rectangles: rectangles,
-      squares: squares,
-      polygons: allPolygons
-    };
-    var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData));
-    var a = document.createElement("a");
-    a.href = "data:" + data;
-    a.download = "data.json";
-    a.click();
+    saveFile(event);
   });
 
   var loadButton = document.getElementById("loadButton");
   loadButton.addEventListener("change", function(event) {
     // select file to open
-    var file = event.target.files[0];
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var contents = e.target.result;
-      var data = JSON.parse(contents);
-      lines = data.lines;
-      rectangles = data.rectangles;
-      squares = data.squares;
-      allPolygons = data.polygons;
-      redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
-      drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
-      drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0);
-      drawPolygon(gl, positionBuffer, allPolygons);
-      updateShapeList();
-    };
-    reader.readAsText(file);
+    loadFile(event,gl);
   });
 
   // MACAM MACAM SLIDER
@@ -644,517 +618,5 @@ function main() {
   });
 
 }
-
-
-// FUNGSI PUNYA LINE
-
-function createLine(
-  gl,
-  program,
-  positionAttributeLocation,
-  positionBuffer,
-  positions,
-  rotation,
-  translationX,
-  translationY,
-  scaleFactor
-) {
-  // Calculate centroid of the line's positions
-  let centerX = 0;
-  let centerY = 0;
-  for (let i = 0; i < positions.length; i += 2) {
-    centerX += positions[i];
-    centerY += positions[i + 1];
-  }
-  centerX /= positions.length / 2;
-  centerY /= positions.length / 2;
-
-  // Apply translation and rotation to the positions
-  let transformedPositions = [];
-  for (let i = 0; i < positions.length; i += 2) {
-    // Translate the point to the centroid
-    let x = positions[i] - centerX;
-    let y = positions[i + 1] - centerY;
-
-    // Apply dilation
-    x *= scaleFactor;
-    y *= scaleFactor;
-
-    // Apply rotation
-    let cos = Math.cos(rotation);
-    let sin = Math.sin(rotation);
-    let rotatedX = x * cos - y * sin;
-    let rotatedY = x * sin + y * cos;
-
-    // Apply translation
-    rotatedX += centerX + translationX;
-    rotatedY += centerY + translationY;
-
-    transformedPositions.push(rotatedX, rotatedY);
-  }
-
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(transformedPositions), gl.STATIC_DRAW);
-
-  // Draw
-  gl.drawArrays(gl.LINES, 0, positions.length / 2);
-}
-
-function redrawLines(
-  gl,
-  program,
-  positionAttributeLocation,
-  positionBuffer,
-  lines, scaleFactor
-) {
-  // Clear the canvas
-  // gl.clear(gl.COLOR_BUFFER_BIT);
-
-  // Iterate over the lines array and redraw each line
-  for (var i = 0; i < lines.length; i++) {
-    var line = lines[i];
-    createLine(
-      gl,
-      program,
-      positionAttributeLocation,
-      positionBuffer,
-      line.positions,
-      line.rotation || 0,
-      line.translationX || 0,
-      line.translationY || 0,
-      scaleFactor || 1
-    );
-  }
-}
-
-
-
-function updateTranslationX(event, gl) {
-  var translationX = parseFloat(event.target.value);
-  if (lines.length > 0) {
-    var currentLine = lines[lines.length - 1];
-    var deltaX = translationX - (currentLine.positions[0] + currentLine.positions[2]) / 2;
-    for (var i = 0; i < currentLine.positions.length; i += 2) {
-      currentLine.positions[i] += deltaX;
-    }
-    currentLine.translationX = translationX;
-  }
-  redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
-}
-
-function updateTranslationY(event, gl) {
-  var translationY = parseFloat(event.target.value);
-  if (lines.length > 0) {
-    var currentLine = lines[lines.length - 1];
-    var deltaY = translationY - (currentLine.positions[1] + currentLine.positions[3]) / 2;
-    for (var i = 1; i < currentLine.positions.length; i += 2) {
-      currentLine.positions[i] += deltaY;
-    }
-    currentLine.translationY = translationY;
-  }
-  redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
-}
-
-function updateDilatation(event, gl) {
-  var scaleFactor = parseFloat(event.target.value);
-  if (lines.length > 0) {
-    var currentLine = lines[lines.length - 1];
-    var centerX = (currentLine.positions[0] + currentLine.positions[2]) / 2;
-    var centerY = (currentLine.positions[1] + currentLine.positions[3]) / 2;
-    for (var i = 0; i < currentLine.positions.length; i += 2) {
-      var x = currentLine.positions[i] - centerX;
-      var y = currentLine.positions[i + 1] - centerY;
-      var dilatedX = x * scaleFactor;
-      var dilatedY = y * scaleFactor;
-      currentLine.positions[i] = dilatedX + centerX;
-      currentLine.positions[i + 1] = dilatedY + centerY;
-    }
-  }
-  redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
-}
-
-function updateRotation(event, gl) {
-  rotationAngle = parseInt(event.target.value) * Math.PI / 180; // Convert degrees to radians
-  if (lines.length > 0) {
-    var currentLine = lines[lines.length - 1];
-    var centerX = (currentLine.positions[0] + currentLine.positions[2]) / 2;
-    var centerY = (currentLine.positions[1] + currentLine.positions[3]) / 2;
-    var x = currentLine.positions[0] - centerX;
-    var y = currentLine.positions[1] - centerY;
-    var cos = Math.cos(rotationAngle);
-    var sin = Math.sin(rotationAngle);
-    var rotatedX = x * cos - y * sin;
-    var rotatedY = x * sin + y * cos;
-    currentLine.positions[0] = rotatedX + centerX;
-    currentLine.positions[1] = rotatedY + centerY;
-    x = currentLine.positions[2] - centerX;
-    y = currentLine.positions[3] - centerY;
-    rotatedX = x * cos - y * sin;
-    rotatedY = x * sin + y * cos;
-    currentLine.positions[2] = rotatedX + centerX;
-    currentLine.positions[3] = rotatedY + centerY;
-    currentLine.rotation = rotationAngle;
-  }
-  redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
-}
-
-// FUNGSI RECTANGLE
-
-function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, offsetY) {
-  // gl.clear(gl.COLOR_BUFFER_BIT); // Clear canvas before drawing
-
-  rectangles.forEach(function (rect) {
-    // Convert coordinates to WebGL space (-1 to 1)
-    var positions = [
-      rect.vert1[0], rect.vert1[1],
-      rect.vert2[0], rect.vert2[1],
-      rect.vert4[0], rect.vert4[1],
-      rect.vert3[0], rect.vert3[1]
-    ].map(function(val, index) {
-      // Convert X coordinates
-      if (index % 2 === 0) {
-        return ((val + offsetX) / gl.canvas.width) * 2 - 1;
-      }
-      // Convert Y coordinates
-      else {
-        return (1 - (val + offsetY) / gl.canvas.height) * 2 - 1;
-      }
-    });
-
-    // Scale the rectangle based on height and width
-    for (let i = 0; i < positions.length; i++) {
-      if (i % 2 === 0) positions[i] *= width;
-      else positions[i] *= height;
-    }
-
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-    // draw
-    var primitiveType = gl.TRIANGLE_STRIP;
-    var offset = 0;
-    var count = 4;
-    gl.drawArrays(primitiveType, offset, count);
-
-    // Update last rectangle position
-    lastRectX = offsetX;
-    lastRectY = offsetY;
-    lastRectWidth = width;
-    lastRectHeight = height;
-  });
-}
-
-function moveRectangle(gl, positionBuffer, rectangles, index, newX, newY) {
-  // Move the specified rectangle
-  var rect = rectangles[index];
-  rect.vert1[0] += newX;
-  rect.vert2[0] += newX;
-  rect.vert3[0] += newX;
-  rect.vert4[0] += newX;
-  rect.vert1[1] += newY;
-  rect.vert2[1] += newY;
-  rect.vert3[1] += newY;
-  rect.vert4[1] += newY;
-
-
-  // Redraw all rectangles
-  drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
-}
-
-function rotateRectangle(gl, positionBuffer, rectangles, index, angleInDegrees) {
-  var rect = rectangles[index];
-  var angleInRadians = angleInDegrees * Math.PI / 180;
-  var cos = Math.cos(angleInRadians);
-  var sin = Math.sin(angleInRadians);
-
-  var centerX = (rect.vert1[0] + rect.vert3[0]) / 2;
-  var centerY = (rect.vert1[1] + rect.vert3[1]) / 2;
-
-  var vertices = [rect.vert1, rect.vert2, rect.vert4, rect.vert3];
-  var newVertices = vertices.map(function(vertex) {
-    var newX = (vertex[0] - centerX) * cos - (vertex[1] - centerY) * sin + centerX;
-    var newY = (vertex[0] - centerX) * sin + (vertex[1] - centerY) * cos + centerY;
-    return [newX, newY];
-  });
-
-  rect.vert1 = newVertices[0];
-  rect.vert2 = newVertices[1];
-  rect.vert3 = newVertices[3];
-  rect.vert4 = newVertices[2];
-
-  // Redraw all rectangles
-  drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
-}
-
-function changeWidth(gl, positionBuffer, rectangles, index, newWidth) {
-  // Get the rectangle
-  var rect = rectangles[index];
-
-  // Calculate the scale factor
-  var midpoint = (rect.vert1[0] + rect.vert3[0]) / 2;
-  rect.vert1[0] = midpoint - newWidth;
-  rect.vert2[0] = midpoint + newWidth;
-  rect.vert3[0] = midpoint + newWidth;
-  rect.vert4[0] = midpoint - newWidth;
-
-
-  // Redraw all rectangles
-  drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
-}
-
-function changeHeight(gl, positionBuffer, rectangles, index, newHeight) {
-  var rect = rectangles[index];
-
-
-  // Calculate the scale factor
-  var midpoint = (rect.vert1[1] + rect.vert3[1]) / 2;
-  rect.vert1[1] = midpoint - newHeight;
-  rect.vert2[1] = midpoint - newHeight;
-  rect.vert3[1] = midpoint + newHeight;
-  rect.vert4[1] = midpoint + newHeight;
-
-  // Redraw all rectangles
-  drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
-}
-
-
-// FUNGSI SQUARE
-function drawSquares(gl, positionBuffer, squares, scaleFactor, offsetX, offsetY, rotation) {
-  // gl.clear(gl.COLOR_BUFFER_BIT); // Clear canvas before drawing
-
-  squares.forEach(function (square, index) {
-      var x1 = square.vert1[0] - offsetX;
-      var y1 = square.vert1[1] - offsetY;
-      var x2 = square.vert2[0] - offsetX;
-      var y2 = square.vert2[1] - offsetY;
-      var x3 = square.vert3[0] - offsetX;
-      var y3 = square.vert3[1] - offsetY;
-      var x4 = square.vert4[0] - offsetX;
-      var y4 = square.vert4[1] - offsetY;
-
-      // Calculate the center of the square
-      var centerX = (x1 + x2) / 2;
-      var centerY = (y1 + y2) / 2;
-
-      // Apply rotation around the center of the square
-      var cos = Math.cos(rotation);
-      var sin = Math.sin(rotation);
-      var rotatedX1 = centerX + (x1 - centerX) * cos - (y1 - centerY) * sin;
-      var rotatedY1 = centerY + (x1 - centerX) * sin + (y1 - centerY) * cos;
-      var rotatedX2 = centerX + (x2 - centerX) * cos - (y2 - centerY) * sin;
-      var rotatedY2 = centerY + (x2 - centerX) * sin + (y2 - centerY) * cos;
-      var rotatedX3 = centerX + (x3 - centerX) * cos - (y3 - centerY) * sin;
-      var rotatedY3 = centerY + (x3 - centerX) * sin + (y3 - centerY) * cos;
-      var rotatedX4 = centerX + (x4 - centerX) * cos - (y4 - centerY) * sin;
-      var rotatedY4 = centerY + (x4 - centerX) * sin + (y4 - centerY) * cos;
-
-      // Apply dilation
-      if (index === squares.length - 1) {
-          rotatedX1 = centerX + (rotatedX1 - centerX) * scaleFactor;
-          rotatedX2 = centerX + (rotatedX2 - centerX) * scaleFactor;
-          rotatedX3 = centerX + (rotatedX3 - centerX) * scaleFactor;
-          rotatedX4 = centerX + (rotatedX4 - centerX) * scaleFactor;
-          rotatedY1 = centerY + (rotatedY1 - centerY) * scaleFactor;
-          rotatedY2 = centerY + (rotatedY2 - centerY) * scaleFactor;
-          rotatedY3 = centerY + (rotatedY3 - centerY) * scaleFactor;
-          rotatedY4 = centerY + (rotatedY4 - centerY) * scaleFactor;
-      }
-
-      // Translate back
-      rotatedX1 += offsetX;
-      rotatedY1 += offsetY;
-      rotatedX2 += offsetX;
-      rotatedY2 += offsetY;
-      rotatedX3 += offsetX;
-      rotatedY3 += offsetY;
-      rotatedX4 += offsetX;
-      rotatedY4 += offsetY;
-
-      // Convert coordinates to WebGL space (-1 to 1)
-      var squareX1 = (rotatedX1 / gl.canvas.width) * 2 - 1;
-      var squareY1 = (1 - rotatedY1 / gl.canvas.height) * 2 - 1;
-      var squareX2 = (rotatedX2 / gl.canvas.width) * 2 - 1;
-      var squareY2 = (1 - rotatedY2 / gl.canvas.height) * 2 - 1;
-      var squareX3 = (rotatedX3 / gl.canvas.width) * 2 - 1;
-      var squareY3 = (1 - rotatedY3 / gl.canvas.height) * 2 - 1;
-      var squareX4 = (rotatedX4 / gl.canvas.width) * 2 - 1;
-      var squareY4 = (1 - rotatedY4 / gl.canvas.height) * 2 - 1;
-
-      var positions = [
-          squareX1, squareY1,
-          squareX2, squareY2,
-          squareX4, squareY4,
-          squareX3, squareY3,
-      ];
-
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-          // draw
-          var primitiveType = gl.TRIANGLE_STRIP;
-          var offset = 0;
-          var count = 4;
-          gl.drawArrays(primitiveType, offset, count);
-      });
-  }
-  
-  
-
-function moveSquare(gl, positionBuffer, squares, index, newX, newY) {
-  // Move the specified square
-  var square = squares[index];
-  square.vert1[0] += newX;
-  square.vert2[0] += newX;
-  square.vert3[0] += newX;
-  square.vert4[0] += newX;
-  square.vert1[1] += newY;
-  square.vert2[1] += newY;
-  square.vert3[1] += newY;
-  square.vert4[1] += newY;
-
-  
-  // Redraw all squares
-  drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0); // scaleFactor is set to 1
-}
-
-
-// FUNGSI POLYGON
-
-
-function rotatePolygon(gl, positionBuffer, polygons, index, angle) {
-  if (index !== -1) {
-    // Calculate the centroid of the polygon
-    var centroid = calculateCentroid(currentPolygon);
-    
-    // Ensure angle stays within 0 to 360 degrees
-    angle %= 360;
-    if (angle < 0) {
-      angle += 360;
-    }
-
-    // Calculate the rotation matrix
-    var radians = (angle * Math.PI) / 180;
-    var cos = Math.cos(radians);
-    var sin = Math.sin(radians);
-
-    // Rotate each vertex around the centroid
-    var rotatedPolygon = currentPolygon.map(function(vertex) {
-      var x = vertex[0] - centroid[0];
-      var y = vertex[1] - centroid[1];
-      return [
-        x * cos - y * sin + centroid[0],
-        x * sin + y * cos + centroid[1]
-      ];
-    });
-
-    console.log("Rotated polygon:", rotatedPolygon);
-
-    drawPolygon(gl, positionBuffer, [rotatedPolygon]);
-  }
-}
-
-function translatePolygon(gl, positionBuffer, polygons, index, dx, dy) {
-  // Loop through each vertex of the polygon and translate it
-  for (var i = 0; i < currentPolygon.length; i++) {
-    currentPolygon[i][0] += dx; // Update x-coordinate
-    currentPolygon[i][1] += dy; // Update y-coordinate
-  }
-
-  // Redraw the polygon with the updated positions
-  redrawPolygons(gl, positionBuffer, [currentPolygon]);
-}
-
-function dilatePolygon(gl, positionBuffer, polygons, index, scale) {
-  if (index !== -1) {
-    // Calculate the centroid of the polygon
-    var centroid = calculateCentroid(currentPolygon);
-
-    // Scale each vertex outward or inward from the centroid
-    var dilatedPolygon = currentPolygon.map(function(vertex) {
-      var x = (vertex[0] - centroid[0]) * scale + centroid[0];
-      var y = (vertex[1] - centroid[1]) * scale + centroid[1];
-      return [x, y];
-    });
-
-    // Update currentPolygon with the dilated polygon vertices
-    currentPolygon = dilatedPolygon;
-
-    console.log("Dilated polygon:", dilatedPolygon);
-
-    drawPolygon(gl, positionBuffer, [dilatedPolygon]);
-  }
-}
-
-
-function redrawPolygons(gl, positionBuffer, polygons) {
-  // gl.clear(gl.COLOR_BUFFER_BIT);
-
-  polygons.forEach(function(vertices) {
-      var positions = [];
-      vertices.forEach(function(vertex) {
-          var x = (vertex[0] / gl.canvas.width) * 2 - 1;
-          var y = (vertex[1] / gl.canvas.height) * -2 + 1;
-          positions.push(x, y);
-      });
-
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-      var primitiveType = gl.TRIANGLE_FAN;
-      var offset = 0;
-      var count = positions.length / 2;
-      gl.drawArrays(primitiveType, offset, count);
-  });
-}
-
-
-function findNearestVertexIndex(polygons, x, y) {
-  var threshold = 10; // Threshold distance for considering a vertex as "selected"
-  for (var i = 0; i < polygons.length; i++) {
-    for (var j = 0; j < polygons[i].length; j++) {
-      var vertex = polygons[i][j];
-      var distance = Math.sqrt(Math.pow(x - vertex[0], 2) + Math.pow(y - vertex[1], 2));
-      if (distance < threshold) {
-        return { polygonIndex: i, vertexIndex: j };
-      }
-    }
-  }
-  return -1;
-}
-
-function drawPolygon(gl, positionBuffer, polygons) {
-  // gl.clear(gl.COLOR_BUFFER_BIT);
-
-  polygons.forEach(function(vertices) {
-    var positions = [];
-    vertices.forEach(function(vertex) {
-      var x = (vertex[0] / gl.canvas.width) * 2 - 1;
-      var y = (vertex[1] / gl.canvas.height) * -2 + 1;
-      positions.push(x, y);
-    });
-
-    // Create a new buffer for the polygon's positions
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-    var primitiveType = gl.TRIANGLE_FAN;
-    var offset = 0;
-    var count = positions.length / 2; // Number of vertices
-
-    // Draw the polygon
-    gl.drawArrays(primitiveType, offset, count);
-  });
-}
-
-
-function addVertex(polygon, x, y) {
-  polygon.push([x, y]);
-}
-
-function calculateCentroid(polygon) {
-  var centroid = [0, 0];
-  polygon.forEach(function(vertex) {
-    centroid[0] += vertex[0];
-    centroid[1] += vertex[1];
-  });
-  centroid[0] /= polygon.length;
-  centroid[1] /= polygon.length;
-  return centroid;
-}
-
 
 main();
