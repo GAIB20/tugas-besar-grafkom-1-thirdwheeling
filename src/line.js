@@ -7,6 +7,7 @@ function createLine(
     positionAttributeLocation,
     positionBuffer,
     positions,
+    color,
     rotation,
     translationX,
     translationY,
@@ -21,6 +22,9 @@ function createLine(
     }
     centerX /= positions.length / 2;
     centerY /= positions.length / 2;
+    gl.uniform4fv(colorLocation, color);
+
+    
   
     // Apply translation and rotation to the positions
     let transformedPositions = [];
@@ -71,6 +75,7 @@ function createLine(
         positionAttributeLocation,
         positionBuffer,
         line.positions,
+        line.color,
         line.rotation || 0,
         line.translationX || 0,
         line.translationY || 0,
@@ -173,4 +178,12 @@ function createLine(
       requestId = null;
     }
   }
+  function changeColorLine(gl, positionBuffer, lines, index, newColor) {
+    // Get the rectangle
+    var line = lines[index];
+    line.color = newColor;
+    console.log("Color:", newColor);
   
+    // Redraw all rectangles
+    redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines, 1);
+  }

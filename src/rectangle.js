@@ -6,6 +6,7 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
   
     rectangles.forEach(function (rect) {
       // Convert coordinates to WebGL space (-1 to 1)
+      gl.uniform4fv(colorLocation, rect.color);
       var positions = [
         rect.vert1[0], rect.vert1[1],
         rect.vert2[0], rect.vert2[1],
@@ -155,4 +156,17 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
       requestId = null;
     }
   }
+  
+  function changeColorRect(gl, positionBuffer, rectangles, index, newColor) {
+    // Get the rectangle
+    var rect = rectangles[index];
+    rect.color = newColor;
+    console.log("Color:", newColor);
+  
+    // Redraw all rectangles
+    drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
+  }
+
+  
+
   
