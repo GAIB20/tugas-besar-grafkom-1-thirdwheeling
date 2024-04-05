@@ -41,9 +41,9 @@
                 <label for="dilatasi">Dilatasi</label><br>
                 <input type="range" min="0" max="10" step="0.1" value="1" id="dilateSquare"><br>
                 <label for="translasi">Translasi X</label><br>
-                <input type="range" min="0" max="10" step="0.1" value="5" id="translateSquareX"><br>
+                <input type="range" min="-100" max="100" step="1" value="0" id="translateSquareX"><br>
                 <label for="translasi">Translasi Y</label><br>
-                <input type="range" min="0" max="10" step="0.1" value="5" id="translateSquareY"><br>
+                <input type="range" min="-100" max="100" step="1" value="0" id="translateSquareY"><br>
                 <label for="rotasi">Rotasi</label><br>
                 <input type="range" min="0" max="360" step="1" value="0" id="rotationSquare"><br>
             </div>
@@ -72,7 +72,16 @@
                 <label for="sliderScale">Scale:</label>
                 <input type="range" min="0" max="2" step="0.1" value="1" id="sliderScalePoly">
             </div>
-            
+            <div id="lineAttribute">
+                <label for="dilatasi">Dilatasi</label><br>
+                <input type="range" min="0" max="10" step="0.1" value="1" id="dilateLine"><br>
+                <label for="translasi">Translasi X</label><br>
+                <input type="range" min="0" max="10" step="0.1" value="0" id="translateLineX"><br>
+                <label for="translasi">Translasi Y</label><br>
+                <input type="range" min="0" max="10" step="0.1" value="0" id="translateLineY"><br>
+                <label for="rotasi">Rotasi</label><br>
+                <input type="range" min="0" max="360" step="1" value="0" id="rotationLine"><br>
+            </div>
         </div>
     </div>    
 

@@ -423,24 +423,30 @@ function main() {
     var rectAttr = document.getElementById("rectangleAttribute")
     var squareAttr = document.getElementById("squareAttribute")
     var polyAttr = document.getElementById("polygonAttribute")
+    var lineAttr = document.getElementById("lineAttribute")
     if(text=="Rectangle"){
       rectAttr.style.display = "block"
       squareAttr.style.display = "none"
       polyAttr.style.display = "none"
+      lineAttr.style.display = "none"
       selectedRectIndex = index
     }else if(text=="Square"){
       squareAttr.style.display = "block"
       rectAttr.style.display = "none"
       polyAttr.style.display = "none"
+      lineAttr.style.display = "none"
       selectedSquareIndex = index
     }else if(text=="Lines"){
-      // rectAttr.style.display = "none"
-      // squareAttr.style.display = "none"
-      // selectedLineIndex = index
+      squareAttr.style.display = "none"
+      rectAttr.style.display = "none"
+      polyAttr.style.display = "none"
+      lineAttr.style.display = "block"
+      selectedLineIndex = index
     }else if(text=="Polygon"){
       rectAttr.style.display = "none"
       squareAttr.style.display = "none"
       polyAttr.style.display = "block"
+      lineAttr.style.display = "none"
       selectedPolygonIndex = index
     }
 
@@ -449,6 +455,29 @@ function main() {
   });
 
   // MACAM MACAM SLIDER
+
+  // PUNYA LINE
+  var xSliderLine = document.getElementById("translateLineX");
+  var ySliderLine = document.getElementById("translateLineY");
+  var rotationSliderLine = document.getElementById("rotationLine");
+  var dilatationSliderLine = document.getElementById("dilateLine");
+  rotationSliderLine.addEventListener("input", function(event) {
+    updateRotation(event, gl);
+  });
+
+  xSliderLine.addEventListener("input", function(event) {
+    updateTranslationX(event, gl);
+  });
+
+  ySliderLine.addEventListener("input", function(event) {
+    updateTranslationY(event, gl);
+  });
+
+  dilatationSliderLine.addEventListener("input", function (event) {
+    var scaleFactor = parseFloat(event.target.value);
+    console.log("Scale Factor:", scaleFactor);
+    updateDilatation(event, gl, scaleFactor);
+  });
 
   // PUNYA RECTANGLE
   var heightSliderRect = document.getElementById("sliderHeightRect");
@@ -503,7 +532,7 @@ function main() {
       var x = parseFloat(event.target.value);
       console.log("X:", x);
       var deltaX = x;
-      moveSquare(gl, positionBuffer, squares, selectedSquareIndex, deltaX * 100, 0);
+      moveSquare(gl, positionBuffer, squares, selectedSquareIndex, deltaX, 0);
       // lastSquareX = x; 
   });
   
@@ -511,7 +540,7 @@ function main() {
       var y = parseFloat(event.target.value);
       console.log("Y:", y);
       var deltaY = y;
-      moveSquare(gl, positionBuffer, squares, selectedSquareIndex, 0, deltaY * 100);
+      moveSquare(gl, positionBuffer, squares, selectedSquareIndex, 0, deltaY);
       // lastSquareY = y; 
   });
 
@@ -669,8 +698,9 @@ function updateTranslationX(event, gl) {
   if (lines.length > 0) {
     var currentLine = lines[lines.length - 1];
     var deltaX = translationX - (currentLine.positions[0] + currentLine.positions[2]) / 2;
-    currentLine.positions[0] += deltaX;
-    currentLine.positions[2] += deltaX;
+    for (var i = 0; i < currentLine.positions.length; i += 2) {
+      currentLine.positions[i] += deltaX;
+    }
     currentLine.translationX = translationX;
   }
   redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
@@ -681,32 +711,30 @@ function updateTranslationY(event, gl) {
   if (lines.length > 0) {
     var currentLine = lines[lines.length - 1];
     var deltaY = translationY - (currentLine.positions[1] + currentLine.positions[3]) / 2;
-    currentLine.positions[1] += deltaY;
-    currentLine.positions[3] += deltaY;
+    for (var i = 1; i < currentLine.positions.length; i += 2) {
+      currentLine.positions[i] += deltaY;
+    }
     currentLine.translationY = translationY;
   }
   redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
 }
 
-function updateDilatation(event, gl, scaleFactor) {
+function updateDilatation(event, gl) {
+  var scaleFactor = parseFloat(event.target.value);
   if (lines.length > 0) {
     var currentLine = lines[lines.length - 1];
     var centerX = (currentLine.positions[0] + currentLine.positions[2]) / 2;
     var centerY = (currentLine.positions[1] + currentLine.positions[3]) / 2;
-    var x = currentLine.positions[0] - centerX;
-    var y = currentLine.positions[1] - centerY;
-    var dilatedX = x * scaleFactor;
-    var dilatedY = y * scaleFactor;
-    currentLine.positions[0] = dilatedX + centerX;
-    currentLine.positions[1] = dilatedY + centerY;
-    x = currentLine.positions[2] - centerX;
-    y = currentLine.positions[3] - centerY;
-    dilatedX = x * scaleFactor;
-    dilatedY = y * scaleFactor;
-    currentLine.positions[2] = dilatedX + centerX;
-    currentLine.positions[3] = dilatedY + centerY;
+    for (var i = 0; i < currentLine.positions.length; i += 2) {
+      var x = currentLine.positions[i] - centerX;
+      var y = currentLine.positions[i + 1] - centerY;
+      var dilatedX = x * scaleFactor;
+      var dilatedY = y * scaleFactor;
+      currentLine.positions[i] = dilatedX + centerX;
+      currentLine.positions[i + 1] = dilatedY + centerY;
+    }
   }
-  redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines, scaleFactor);
+  redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
 }
 
 function updateRotation(event, gl) {

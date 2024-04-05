@@ -63,3 +63,7 @@ body{
 #polygonAttribute{
     display: none;
 }
+
+#lineAttribute{
+    display: none;
+}
