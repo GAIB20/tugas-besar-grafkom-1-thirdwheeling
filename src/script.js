@@ -449,9 +449,44 @@ function main() {
       lineAttr.style.display = "none"
       selectedPolygonIndex = index
     }
+    
+  });
 
-    
-    
+  // BUTTON BUTTON
+  var saveButton = document.getElementById("saveButton");
+  saveButton.addEventListener("click", function(event) {
+    var saveData = {
+      lines: lines,
+      rectangles: rectangles,
+      squares: squares,
+      polygons: allPolygons
+    };
+    var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData));
+    var a = document.createElement("a");
+    a.href = "data:" + data;
+    a.download = "data.json";
+    a.click();
+  });
+
+  var loadButton = document.getElementById("loadButton");
+  loadButton.addEventListener("change", function(event) {
+    // select file to open
+    var file = event.target.files[0];
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var contents = e.target.result;
+      var data = JSON.parse(contents);
+      lines = data.lines;
+      rectangles = data.rectangles;
+      squares = data.squares;
+      allPolygons = data.polygons;
+      redrawLines(gl, program, positionAttributeLocation, positionBuffer, lines);
+      drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
+      drawSquares(gl, positionBuffer, squares, 1, 0, 0, 0);
+      drawPolygon(gl, positionBuffer, allPolygons);
+      updateShapeList();
+    };
+    reader.readAsText(file);
   });
 
   // MACAM MACAM SLIDER
