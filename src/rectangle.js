@@ -167,6 +167,46 @@ function drawRectangles(gl, positionBuffer, rectangles, height, width, offsetX, 
     drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
   }
 
+  function dilateRectangle(gl, positionBuffer, rectangles, index, vertexIndex, scaleFactor) {
+    // Get the rectangle
+    var rect = rectangles[index];
+  
+
+
+
+  // Get the vertex to be the center of dilation
+  var centerVertex = rect['vert' + vertexIndex];
+
+  // Iterate over each vertex in the square
+  for (var i = 1; i <= 4; i++) {
+    // Skip the center vertex
+    if (i === vertexIndex) continue;
+
+    // Get the current vertex
+    var vertex = rect['vert' + i];
+
+    // Calculate the direction from the center vertex to the current vertex
+    var directionX = vertex[0] - centerVertex[0];
+    var directionY = vertex[1] - centerVertex[1];
+
+    // Scale the direction
+    var scaledDirectionX = directionX * scaleFactor;
+    var scaledDirectionY = directionY * scaleFactor;
+
+    // Calculate the new position of the vertex
+    var newVertexX = centerVertex[0] + scaledDirectionX;
+    var newVertexY = centerVertex[1] + scaledDirectionY;
+
+    // Update the position of the vertex
+    vertex[0] = newVertexX;
+    vertex[1] = newVertexY;
+  }
+
+
+    // Redraw all rectangles
+    drawRectangles(gl, positionBuffer, rectangles, 1, 1, 0, 0);
+  }
+
   
 
   

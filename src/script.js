@@ -15,6 +15,7 @@ var selectedSquareIndex = null
 let selectedPolygonIndex = -1;
 let selectedVertexIndex = -1;
 let selectedVertexSquare = -1;
+var selectedVertexRectIndex = null
 var lastVertex = { x: 0, y: 0 };
 
 var lastRectX, lastRectY, lastRectWidth, lastRectHeight;
@@ -543,6 +544,8 @@ function main() {
   var animationRect = document.getElementById("animationRectangle");
   var stopAnimationRect = document.getElementById("stopAnimationRectangle");
   var colorPickerRect = document.getElementById("colorPickerRect");
+  var selectedVertexRect = document.getElementById("selectVertexRect");
+  var sliderDilateRect = document.getElementById("vertexRect");
 
   rotationSliderRect.addEventListener("input", function (event) {
       var rotation = event.target.value;
@@ -593,6 +596,18 @@ function main() {
     gl.uniform4f(colorLocation, colorArray.r, colorArray.g, colorArray.b, 1);
     changeColorRect(gl, positionBuffer, rectangles, selectedRectIndex, [colorArray.r, colorArray.g, colorArray.b, 1]);
   });
+
+  selectedVertexRect.addEventListener("click", function (event) {
+    var vertex = event.target.value;
+    console.log("Vertex:", vertex);
+    selectedVertexRectIndex = parseInt(vertex);
+  });
+  sliderDilateRect.addEventListener("input", function (event) {
+    var scaleFactor = parseFloat(event.target.value);
+    // console.log("Scale Factor:", scaleFactor);
+    dilateRectangle(gl, positionBuffer, rectangles, selectedRectIndex, selectedVertexRectIndex, scaleFactor);
+  });
+
 
   //PUNYA SQUARE
   var xSliderSquare = document.getElementById("translateSquareX");
