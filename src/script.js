@@ -108,7 +108,11 @@ function main() {
 
   
   resizeCanvasToDisplaySize(gl.canvas);
-  gl.viewport(0, 0, gl.canvas.width, gl.canvas.width);
+  var sideLength = Math.min(gl.canvas.width, gl.canvas.height);
+
+  var left = (gl.canvas.width - sideLength) / 2;
+  var bottom = (gl.canvas.height - sideLength) / 2;
+  gl.viewport(left, bottom, gl.canvas.width, gl.canvas.height);
 
   // Clear the canvas
   gl.clearColor(0, 0, 0, 0);
